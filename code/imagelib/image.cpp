@@ -26,15 +26,23 @@ bool isTiffFile(std::string filename){
   }
 }
 
+bool isJpegFile(std::string filename){
+  if (filename.substr(filename.find_last_of(".") + 1) == "jpg") {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 bool Image::openFile(std::string filename, short directory){
   // Check file type by filename extensions
   if(isTiffFile(filename)){
     return loadTiff(filename, directory);
   }
-  std::cout << filename;
-  // else if(isJpegFile(filename)){
-  //     return loadJpeg(filename);
-  // }
+  else if(isJpegFile(filename)){
+      return loadJpeg(filename);
+  }
   return false;
 };
 bool Image::combineFiles(std::string filename1, std::string filename2, std::string filename3){

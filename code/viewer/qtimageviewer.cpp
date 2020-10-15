@@ -86,22 +86,12 @@ void QtImageViewer::showFile(const QString filename, short directory){
         myImage->getWidth()*myImage->getChannels()*myImage->getBPP()/8,
 	      format);
   
-  // for (unsigned int i = 0; i < myImage->getWidth() * myImage->getHeight(); i++){
-  //   std::cout << (int)myImage->getImageData()[i] << " ";
-  // }
-  
-  std::cout << "print 1" << std::endl;
   _qImageLabel->setPixmap(QPixmap::fromImage(qImg));
-  std::cout << "print 2" << std::endl;
   _qImageLabel->resize(_qImageLabel->pixmap()->size());
-  std::cout << "print 3" << std::endl;
   _qScrollArea->setVisible(true);
-  std::cout << "print 4" << std::endl;
 
   update(); /// Force Qt to redraw
-  std::cout << "print 5" << std::endl;
   delete(myImage); /// Data is copied to Qt, we can delete our image.
-  std::cout << "print 6" << std::endl;
 
   //std::this_thread::sleep_for(std::chrono::seconds(30));
 }
@@ -122,16 +112,10 @@ void QtImageViewer::showFile(Image* myImage){
         myImage->getWidth()*myImage->getChannels()*myImage->getBPP()/8,
 	      format);
   
-  std::cout << "print 1" << std::endl;
   _qImageLabel->setPixmap(QPixmap::fromImage(qImg));
-  std::cout << "print 2" << std::endl;
   _qImageLabel->resize(_qImageLabel->pixmap()->size());
-  std::cout << "print 3" << std::endl;
   _qScrollArea->setVisible(true);
-  std::cout << "print 4" << std::endl;
 
   update(); /// Force Qt to redraw
-  std::cout << "print 5" << std::endl;
   delete(myImage); /// Data is copied to Qt, we can delete our image.
-  std::cout << "print 6" << std::endl;
 }
