@@ -106,6 +106,35 @@ unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, uns
     imgData[i*3 + 2] = img3Data[i];
   }
 
+  TIFF *output_image;
+  if((output_image = TIFFOpen("/home/marius/Desktop/IA_darbas/data/combined_image.tif", "w")) == NULL){
+    std::cerr << "Unable to write tif file: " << "combined_image.tif" << std::endl;
+  }
+
+  TIFFSetField(output_image, TIFFTAG_IMAGEWIDTH, imageWidth);
+  TIFFSetField(output_image, TIFFTAG_IMAGELENGTH, imageLength);
+  TIFFSetField(output_image, TIFFTAG_SAMPLESPERPIXEL, 3);
+  TIFFSetField(output_image, TIFFTAG_BITSPERSAMPLE, 8);
+  TIFFSetField(output_image, TIFFTAG_ROWSPERSTRIP, imageLength);
+  // TIFFSetField(output_image, TIFFTAG_ORIENTATION, (int)ORIENTATION_TOPLEFT);
+  TIFFSetField(output_image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  TIFFSetField(output_image, TIFFTAG_COMPRESSION, COMPRESSION_JPEG);
+  TIFFSetField(output_image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+
+  // Write the information to the file
+  tsize_t image_s;
+  if(image_s = TIFFWriteEncodedStrip(output_image, 0, imgData, imageWidth * imageLength * 3) == -1)
+  {
+    std::cerr << "Unable to write tif file: " << "image.tif" << std::endl;
+  }
+  else
+  {
+    std::cout << "Image is saved! size is : " << image_s << std::endl;
+  }
+
+  TIFFWriteDirectory(output_image);
+  TIFFClose(output_image);
+
   return imgData;
 }
 

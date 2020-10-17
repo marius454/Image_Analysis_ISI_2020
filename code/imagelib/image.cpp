@@ -41,7 +41,7 @@ bool Image::openFile(std::string filename, short directory){
     return loadTiff(filename, directory);
   }
   else if(isJpegFile(filename)){
-      return loadJpeg(filename);
+    return loadJpeg(filename);
   }
   return false;
 };
