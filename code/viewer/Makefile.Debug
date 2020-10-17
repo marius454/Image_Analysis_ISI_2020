@@ -16,7 +16,7 @@ CXX           = g++
 DEFINES       = -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -D_REENTRANT -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -D_REENTRANT -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I.. -I../imagelib -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -Idebug -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I. -I.. -I../imagelib -isystem /usr/include/eigen3 -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -Idebug -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -36,7 +36,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = imageviewer1.0.0
-DISTDIR = /home/marius/Desktop/IA\ darbas/code/viewer/debug/imageviewer1.0.0
+DISTDIR = /home/marius/Desktop/IA_darbas/code/viewer/debug/imageviewer1.0.0
 LINK          = g++
 LFLAGS        = 
 LIBS          = $(SUBLIBS) -L../imagelib/ -limagelib -ljpeg -ltiff /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Core.so /usr/lib/x86_64-linux-gnu/libGL.so -lpthread   
@@ -201,9 +201,10 @@ compiler_moc_header_make_all: debug/moc_qtimageviewer.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) debug/moc_qtimageviewer.cpp
 debug/moc_qtimageviewer.cpp: qtimageviewer.hpp \
+		../imagelib/image.hpp \
 		debug/moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include '/home/marius/Desktop/IA darbas/code/viewer/debug/moc_predefs.h' -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I'/home/marius/Desktop/IA darbas/code/viewer' -I'/home/marius/Desktop/IA darbas/code/viewer' -I'/home/marius/Desktop/IA darbas/code' -I'/home/marius/Desktop/IA darbas/code/imagelib' -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include qtimageviewer.hpp -o debug/moc_qtimageviewer.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/marius/Desktop/IA_darbas/code/viewer/debug/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/marius/Desktop/IA_darbas/code/viewer -I/home/marius/Desktop/IA_darbas/code/viewer -I/home/marius/Desktop/IA_darbas/code -I/home/marius/Desktop/IA_darbas/code/imagelib -I/usr/include/eigen3 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include qtimageviewer.hpp -o debug/moc_qtimageviewer.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -221,7 +222,8 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-debug/imageviewer.o: imageviewer.cpp qtimageviewer.hpp
+debug/imageviewer.o: imageviewer.cpp qtimageviewer.hpp \
+		../imagelib/image.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/imageviewer.o imageviewer.cpp
 
 debug/qtimageviewer.o: qtimageviewer.cpp qtimageviewer.hpp \

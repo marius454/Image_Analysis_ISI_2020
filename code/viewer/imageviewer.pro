@@ -1,6 +1,7 @@
 TEMPLATE = app
 DEPENDPATH += ./
 INCLUDEPATH += ./ ../ ../imagelib ## relative path to imagelib
+INCLUDEPATH += /usr/include/eigen3
 RESOURCES += 
 
 CONFIG += qt c++11 debug_and_release

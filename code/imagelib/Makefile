@@ -13,7 +13,7 @@ $(TARGET): $(HEADERS) $(OBJS)
 
 # '$@' matches target, '%<' matches source
 %.o: %.cpp image.hpp
-	g++ -fPIC -O3 -c $< -o $@ -I./
+	g++ -fPIC -O3 -c $< -o $@ -I./ -I/usr/include/eigen3
 
 clean:
 	rm *.o;

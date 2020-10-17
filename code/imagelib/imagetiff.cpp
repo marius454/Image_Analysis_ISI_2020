@@ -68,9 +68,6 @@ unsigned char* loadTiffTiled(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
   free(buf);
   std::cout << "all pixels were moved to memory" << std::endl;
   return imgData;
-
-  // TIFFReadTile(tiff, buf, 960, 0, 0, 0);
-  // return buf;
 }
 
 unsigned char* loadTiffStrip(TIFF* tiff, uint32 imageWidth, uint32 imageLength, short channels) {
@@ -107,7 +104,7 @@ unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, uns
   }
 
   TIFF *output_image;
-  if((output_image = TIFFOpen("/home/marius/Desktop/IA_darbas/data/combined_image.tif", "w")) == NULL){
+  if((output_image = TIFFOpen("../../data/week1/combined_image.tif", "w")) == NULL){
     std::cerr << "Unable to write tif file: " << "combined_image.tif" << std::endl;
   }
 
@@ -116,7 +113,6 @@ unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, uns
   TIFFSetField(output_image, TIFFTAG_SAMPLESPERPIXEL, 3);
   TIFFSetField(output_image, TIFFTAG_BITSPERSAMPLE, 8);
   TIFFSetField(output_image, TIFFTAG_ROWSPERSTRIP, imageLength);
-  // TIFFSetField(output_image, TIFFTAG_ORIENTATION, (int)ORIENTATION_TOPLEFT);
   TIFFSetField(output_image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   TIFFSetField(output_image, TIFFTAG_COMPRESSION, COMPRESSION_JPEG);
   TIFFSetField(output_image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
