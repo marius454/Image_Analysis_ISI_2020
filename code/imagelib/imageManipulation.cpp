@@ -4,6 +4,47 @@
 #include <string>
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <math.h>
+#include <thread>
+#include <chrono>
+
+
+Eigen::Matrix3f IndexToWorld(BBox bbox, float pixelUnit){
+  float height = abs(ceil((bbox.maxY + 1) - bbox.minY));
+  Eigen::Matrix3f MinMaxOffset, unitScale, swapY, offsetY;
+  MinMaxOffset.setIdentity();
+  MinMaxOffset(0,2) = bbox.minX;
+  MinMaxOffset(1,2) = bbox.minY;
+  unitScale.setIdentity();
+  unitScale(0,0) = pixelUnit;
+  unitScale(1,1) = pixelUnit;
+  swapY.setIdentity();
+  swapY(1,1) = -1;
+  offsetY.setIdentity();
+  offsetY(1,2) = -1 * (height - 1);
+
+  Eigen::Matrix3f I_W = MinMaxOffset * unitScale * swapY * offsetY;
+  return I_W;
+}
+
+Eigen::Matrix3f WorldToIndex(BBox bbox, float pixelUnit){
+  float height = abs(ceil((bbox.maxY + 1) - bbox.minY));
+  
+  Eigen::Matrix3f MinMaxOffset, unitScale, swapY, offsetY;
+  MinMaxOffset.setIdentity();
+  MinMaxOffset(0,2) = bbox.minX;
+  MinMaxOffset(1,2) = bbox.minY;
+  unitScale.setIdentity();
+  unitScale(0,0) = pixelUnit;
+  unitScale(1,1) = pixelUnit;
+  swapY.setIdentity();
+  swapY(1,1) = -1;
+  offsetY.setIdentity();
+  offsetY(1,2) = -1 * (height - 1);
+
+  Eigen::Matrix3f W_I = (MinMaxOffset * unitScale * swapY * offsetY).inverse();
+  return W_I;
+}
 
 bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices){
   if (_channels > 1){
@@ -27,63 +68,19 @@ bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices){
       _indexCoordinates[ y*_width + x ] = Eigen::Vector3i{x,y,1};
       _worldCoordinates[ y*_width + x ] = Eigen::Vector3f{(float)x, (float)y, 1.0f};
     }
-  IndexToWorld(1);
+  I_W = IndexToWorld(_bbox, 1);
   
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
+      _worldCoordinates[ y*_width + x ] = I_W * _worldCoordinates[ y*_width + x ];
       for (unsigned short i = 0; i < n; i++){
         _worldCoordinates[ y*_width + x ] = changeMatrices[i] * _worldCoordinates[ y*_width + x ];
       }
     }
   recalculateBBox();
-  WorldToIndex(1);
-  std::cout << _indexCoordinates[_width * (_height - 1)] << std::endl;
-  std::cout << _worldCoordinates[_width * (_height - 1)] << std::endl;
-  std::cout << "Bounding box:" << std::endl;
-  std::cout << "(minX, minY) = (" << _bbox.minX << ", " << _bbox.minY << ")" <<std::endl;
-  std::cout << "(maxX, maxY) = (" << _bbox.maxX << ", " << _bbox.maxY << ")" <<std::endl;
-  std::exit(0);
+  W_I = WorldToIndex(_bbox, 1);
+  setIntensities(n, changeMatrices);
   return true;
-}
-
-void Image::IndexToWorld(float pixelUnit){
-  Eigen::Matrix3f MinMaxOffset, unitScale, swapY, offsetY;
-  MinMaxOffset.setIdentity();
-  MinMaxOffset(0,2) = _bbox.minX;
-  MinMaxOffset(1,2) = _bbox.minY;
-  unitScale.setIdentity();
-  unitScale(0,0) = pixelUnit;
-  unitScale(1,1) = pixelUnit;
-  swapY.setIdentity();
-  swapY(1,1) = -1;
-  offsetY.setIdentity();
-  offsetY(1,2) = -1 * ((float)_height - 1);
-
-  I_W = MinMaxOffset * unitScale * swapY * offsetY;
-  for (int y = 0; y < _height; y++)
-    for (int x = 0; x < _width; x++){
-      _worldCoordinates[ y*_width + x ] = I_W * _worldCoordinates[ y*_width + x ];
-    }
-}
-
-void Image::WorldToIndex(float pixelUnit){
-  Eigen::Matrix3f MinMaxOffset, unitScale, swapY, offsetY;
-  MinMaxOffset.setIdentity();
-  MinMaxOffset(0,2) = _bbox.minX;
-  MinMaxOffset(1,2) = _bbox.minY;
-  unitScale.setIdentity();
-  unitScale(0,0) = pixelUnit;
-  unitScale(1,1) = pixelUnit;
-  swapY.setIdentity();
-  swapY(1,1) = -1;
-  offsetY.setIdentity();
-  offsetY(1,2) = -1 * ((float)((_bbox.maxY + 1) - _bbox.minY) - 1);
-
-  W_I = (MinMaxOffset * unitScale * swapY * offsetY).inverse();
-  for (int y = 0; y < _height; y++)
-    for (int x = 0; x < _width; x++){
-      _worldCoordinates[ y*_width + x ] = W_I * _worldCoordinates[ y*_width + x ];
-    }
 }
 
 void Image::recalculateBBox(){
@@ -92,7 +89,6 @@ void Image::recalculateBBox(){
 	float minX = std::numeric_limits<float>::max();
 	float minY = std::numeric_limits<float>::max();
 
-  std::cout << "good" << std::endl;
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
       float wx = _worldCoordinates[ y*_width + x ](0);
@@ -107,6 +103,53 @@ void Image::recalculateBBox(){
   _bbox.maxY = maxY;
   _bbox.minX = minX;
   _bbox.minY = minY;
-  // _height = (maxY + 1) - minY;
-  // _width = (maxX + 1) - minX;
+}
+
+void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices){
+  std::cout << "good" << std::endl;
+  unsigned int newHeight = static_cast<unsigned int>(abs(ceil((_bbox.maxY + 1) - _bbox.minY)));
+  unsigned int newWidth = static_cast<unsigned int>(abs(ceil((_bbox.maxX + 1) - _bbox.minX)));
+  _IPrimeCoordinates = new Eigen::Vector3f[ newHeight * newWidth ];
+  unsigned char* transformedImageData = (unsigned char*)malloc( newHeight * newWidth );
+  std::cout << "New Height: " << newHeight << std::endl;
+  std::cout << "New Width: " << newWidth << std::endl;
+  Eigen::Matrix3f invW_I = W_I.inverse();
+  Eigen::Matrix3f invI_W = I_W.inverse();
+  for (unsigned int y = 0; y < 3; y++)
+    for (unsigned int x = 0; x < 3; x++){
+      if (invW_I(y, x) == -0.0f){
+        invW_I(y, x) = 0;
+      }
+      if (invI_W(y, x) == -0.0f){
+        invI_W(y, x) = 0;
+      }
+    }
+
+  for (unsigned int y = 0; y < newHeight; y++)
+    for (unsigned int x = 0; x < newWidth; x++){
+      _IPrimeCoordinates[ y*newWidth + x ] = Eigen::Vector3f{(float)x, (float)y, 1.0f};
+      Eigen::Vector3f indexVec = invW_I * _IPrimeCoordinates[ y*newWidth + x ];
+      for (short i = n-1; i >= 0; i--){
+        indexVec = changeMatrices[i].inverse() * indexVec;
+      }
+      indexVec = invI_W * indexVec;
+      if (indexVec(0) >= 0 && indexVec(0) <= _width && indexVec(1) >= 0 && indexVec(1) <= _height){
+        transformedImageData[ y*newWidth + x ] = NN(indexVec);
+      } else{
+        transformedImageData[ y*newWidth + x ] = static_cast<unsigned char>(0);
+      }
+    }
+  free(_data);
+  std::cout << "good" << std::endl;
+  _data = transformedImageData;
+  _height = newHeight;
+  _width = newWidth;
+  std::cout << "good" << std::endl;
+}
+
+unsigned char Image::NN(Eigen::Vector3f indexVec){
+  unsigned int old_x = static_cast<unsigned int>(round(indexVec(0)));
+  unsigned int old_y = static_cast<unsigned int>(round(indexVec(1)));
+
+  return _data[ old_y * _width + old_x ];
 }

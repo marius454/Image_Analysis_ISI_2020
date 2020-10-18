@@ -24,11 +24,7 @@ unsigned char* loadTiffTiled(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
 
   std::cout << "Image resolution: " << imageWidth << "x" << imageLength << std::endl;
   std::cout << "Tile resolution: " << tileWidth << "x" << tileLength << std::endl;
-
-  // uint32 w = tileWidth * (imageWidth / tileWidth + 1);
-  // uint32 l = tileLength * (imageLength / tileLength + 1);
-
-  //unsigned char* imgData = (unsigned char*) malloc (w*l);
+  
   unsigned char* imgData = (unsigned char*) malloc (TIFFTileSize(tiff)*TIFFNumberOfTiles(tiff));
   unsigned char* buf = (unsigned char*) malloc (TIFFTileSize(tiff));
   std::cout << TIFFTileSize(tiff) << " " << TIFFNumberOfTiles(tiff) << std::endl;

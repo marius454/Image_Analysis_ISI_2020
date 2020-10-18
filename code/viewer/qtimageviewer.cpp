@@ -85,13 +85,16 @@ void QtImageViewer::showFile(const QString filename, short directory){
 	      myImage->getHeight(),
         myImage->getWidth()*myImage->getChannels()*myImage->getBPP()/8,
 	      format);
+  std::cout << "good" << std::endl;
   
   _qImageLabel->setPixmap(QPixmap::fromImage(qImg));
   _qImageLabel->resize(_qImageLabel->pixmap()->size());
   _qScrollArea->setVisible(true);
+  std::cout << "good" << std::endl;
 
   update(); /// Force Qt to redraw
   delete(myImage); /// Data is copied to Qt, we can delete our image.
+  std::cout << "good" << std::endl;
 
   //std::this_thread::sleep_for(std::chrono::seconds(30));
 }

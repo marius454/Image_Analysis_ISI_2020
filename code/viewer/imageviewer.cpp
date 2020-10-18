@@ -4,6 +4,7 @@
 #include <iostream>
 #include <QApplication>
 #include <Eigen/Core>
+#include <math.h>
 
 int main(int argc, char** argv){
 
@@ -18,6 +19,23 @@ int main(int argc, char** argv){
   // std::cout << worldCoordinate << " ";
   // std::cout << indexCoordinate << std::endl;
   // std::cout << m << std::endl;
+
+  // float f = 9.49;
+  // int i = static_cast<int>(round(f));
+  // std::cout << i << std::endl;
+
+  // Eigen::Matrix3f m;
+  // Eigen::Vector3f v{0,1,1};
+  // m.setIdentity();
+  // m(0,1) = -0.0f;
+  // m(1,0) = -0.0f;
+  // m(2,0) = -0.0f;
+  // m(2,1) = -0.0f;
+  // m(1,2) = 62;
+  // m(1,1) = -1;
+  // std::cout << m << std::endl;
+  // std::cout << v << std::endl;
+  // std::cout << m * v << std::endl;
 
   // return 0;
 
@@ -37,11 +55,12 @@ int main(int argc, char** argv){
       Image* myImage = new Image(filename.toStdString(), 0);
       Eigen::Matrix3f m;
       m.setIdentity();
-      m(0,0) = 2.0f;
-      m(1,1) = 2.0f;
+      m(0,0) = 20.0f;
+      m(1,1) = 20.0f;
       Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
       ms[0] = m;
       myImage->manipulateImage(1, ms);
+      imv->showFile(myImage);
     }
     else if (argc == 3){
       QString filename(argv[1]);
