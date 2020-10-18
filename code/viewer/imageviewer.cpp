@@ -39,7 +39,6 @@ int main(int argc, char** argv){
       m.setIdentity();
       m(0,0) = 2.0f;
       m(1,1) = 2.0f;
-      std::cout << m << std::endl;
       Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
       ms[0] = m;
       myImage->manipulateImage(1, ms);

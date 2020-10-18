@@ -1,5 +1,5 @@
 HEADERS = image.hpp
-SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp
+SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp imageManipulation.cpp
 OBJS = $(SOURCES:.cpp=.o)
 
 TARGET = libimagelib.so

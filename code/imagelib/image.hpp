@@ -10,6 +10,13 @@ struct BBox{
 	float maxY;
 	float minX;
 	float minY;
+	// BBox();
+	// BBox(float _maxX, float _maxY, float _minX, float _minY){
+	// 	maxX = _maxX;
+	// 	maxY = _maxY;
+	// 	minX = _minX;
+	// 	minY = _minY;
+	// };
 };
 
 class Image{
@@ -24,6 +31,9 @@ public:
 	bool openFile(std::string filename, short directory);
 	bool combineFiles(std::string filename1, std::string filename2, std::string filename3);
 	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices);
+	void IndexToWorld(float pixelUnit);
+  void WorldToIndex(float pixelUnit);
+	void recalculateBBox();
 	// Image related
 	unsigned char* getImageData();
 	// Get attributes
@@ -42,6 +52,9 @@ private:
 	unsigned char* _data{nullptr};
 	Eigen::Vector3i* _indexCoordinates{nullptr};
 	Eigen::Vector3f* _worldCoordinates{nullptr};
+	BBox _bbox = BBox();
+  Eigen::Matrix3f I_W;
+  Eigen::Matrix3f W_I;
 	// Tiff related stuff
 	bool loadTiff(std::string filename, short directory);
 	// Jpeg related stuff
