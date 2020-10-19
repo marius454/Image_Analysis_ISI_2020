@@ -31,11 +31,6 @@ public:
 	bool openFile(std::string filename, short directory);
 	bool combineFiles(std::string filename1, std::string filename2, std::string filename3);
 	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices);
-	// Eigen::Matrix3f IndexToWorld(float pixelUnit);
-  // Eigen::Matrix3f WorldToIndex(float pixelUnit);
-	void recalculateBBox();
-  void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices);
-  unsigned char NN(Eigen::Vector3f indexVec);
 	// Image related
 	unsigned char* getImageData();
 	// Get attributes
@@ -52,7 +47,6 @@ private:
 	unsigned long _bpp{0};
 
 	unsigned char* _data{nullptr};
-	Eigen::Vector3i* _indexCoordinates{nullptr};
 	Eigen::Vector3f* _worldCoordinates{nullptr};
   Eigen::Vector3f* _IPrimeCoordinates{nullptr};
 	BBox _bbox = BBox();
@@ -64,5 +58,9 @@ private:
 	bool loadJpeg(std::string filename);
 	// any other...
 	bool loadCombinedTiff(std::string filename1, std::string filename2, std::string filename3);
+  void recalculateBBox();
+  void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices);
+  unsigned char NN(Eigen::Vector3f indexVec);
+  unsigned char BilinearInterpolation(Eigen::Vector3f indexVec);
 };
 #endif
