@@ -1,8 +1,5 @@
 #include "image.hpp"
 
-#include <iostream>
-#include <stdio.h>
-
 #include <stdlib.h>
 #include <jpeglib.h> // Note use of jpeg library
 // See https://libjpeg-turbo.org/Documentation/Documentation

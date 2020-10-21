@@ -1,8 +1,5 @@
 #include "image.hpp"
 
-#include <iostream>
-#include <thread>
-#include <chrono>
 #include <tiffio.h> // Note use of libtiff
 // See http://www.libtiff.org/ for use
 // and https://www.awaresystems.be/imaging/tiff.html for tags
@@ -74,7 +71,7 @@ unsigned char* loadTiffStrip(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
   unsigned char* imgData = (unsigned char*) malloc (stripSize*TIFFNumberOfStrips(tiff));
   unsigned char* buf = (unsigned char*) malloc (stripSize);
   
-  std::cout << stripSize << " " << TIFFNumberOfStrips(tiff) << std::endl;
+  //std::cout << stripSize << " " << TIFFNumberOfStrips(tiff) << std::endl;
   for (tstrip_t strip = 0; strip < TIFFNumberOfStrips(tiff); strip++){
     TIFFReadEncodedStrip(tiff, strip, buf, -1);
     for (uint32 i = 0; i < stripSize; i ++){

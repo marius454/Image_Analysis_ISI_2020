@@ -10,35 +10,6 @@
 
 int main(int argc, char** argv){
 
-  // Eigen::Vector3f worldCoordinate{0.0f,0.0f,1.0f};
-  // Eigen::Vector3i indexCoordinate{0,0,1};
-
-  // Eigen::Matrix3f m;
-  // m.setIdentity();
-  // m(0,0) = 2.0f;
-  // m(1,1) = 2.0f;
-
-  // std::cout << worldCoordinate << " ";
-  // std::cout << indexCoordinate << std::endl;
-  // std::cout << m << std::endl;
-
-  // float f = 9.49;
-  // int i = static_cast<int>(round(f));
-  // std::cout << i << std::endl;
-
-  // Eigen::Matrix3f m;
-  // Eigen::Vector3f v{0,1,1};
-  // m.setIdentity();
-  // m(0,1) = -0.0f;
-  // m(1,0) = -0.0f;
-  // m(2,0) = -0.0f;
-  // m(2,1) = -0.0f;
-  // m(1,2) = 62;
-  // m(1,1) = -1;
-  // std::cout << m << std::endl;
-  // std::cout << v << std::endl;
-  // std::cout << m * v << std::endl;
-
   // return 0;
 
   // Start Qt framework
@@ -74,8 +45,8 @@ int main(int argc, char** argv){
       unsigned short n = 1;
       Eigen::Matrix3f m;
       m.setIdentity();
-      m(0,0) = 20.0f;
-      m(1,1) = 20.0f;
+      m(0,0) = 10.0f;
+      m(1,1) = 10.0f;
       Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
       ms[0] = m;
 
