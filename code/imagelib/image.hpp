@@ -41,7 +41,9 @@ public:
   void transformPixels();
   void intensityNegate();
   void intensityPowerLaw(float a, float gamma);
-  void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints, float* desiredValueFractionsAtPoints);
+  void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints,
+   float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
+   void histogramNormalization();
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes
@@ -87,6 +89,7 @@ public:
   Interval(Eigen::Vector2f left, Eigen::Vector2f right);
 
   float linearInterpolation(float x);
+  unsigned int threshold(uint32 x);
 
   Eigen::Vector2f getLeft();
   Eigen::Vector2f getRight();

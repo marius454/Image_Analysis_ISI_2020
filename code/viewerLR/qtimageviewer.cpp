@@ -103,18 +103,20 @@ void QtImageViewer::showImage(Image *img){
   Image *copy = new Image(*(img));
 
   // transform copy
-  //copy->intensityNegate();
-  //copy->intensityPowerLaw(1, 5);
+  // copy->intensityNegate();
+  // copy->intensityPowerLaw(1, 0.3);
 
   // uint16 n = 2;
   // float xpoints[n] = {0.375f, 0.625f};
   // float ypoints[n] = {0.125f, 0.875f};
 
-  uint16 n = 1;
-  float xpoints[n] = {0.5f};
-  float ypoints[n] = {1.0f};
+  // uint16 n = 2;
+  // float xpoints[n] = {0.9f, 1.0f};
+  // float ypoints[n] = {0.3f, 0.0f};
 
-  copy->contrastStretching(n, xpoints, ypoints);
+  // copy->contrastStretching(n, xpoints, ypoints, 2);
+
+  copy->histogramNormalization();
 
   // show copy
   showImageRight(copy); 

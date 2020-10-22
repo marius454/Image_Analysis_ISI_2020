@@ -45,8 +45,8 @@ int main(int argc, char** argv){
       unsigned short n = 1;
       Eigen::Matrix3f m;
       m.setIdentity();
-      m(0,0) = 10.0f;
-      m(1,1) = 10.0f;
+      m(0,0) = 2.0f;
+      m(1,1) = 2.0f;
       Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
       ms[0] = m;
 

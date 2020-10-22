@@ -46,8 +46,10 @@ bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices){
   }
 
   I_W = IndexToWorld(_bbox, 1);
+  std::cout << I_W << std::endl;
   recalculateBBox(n, changeMatrices);
   W_I = WorldToIndex(_bbox, 1);
+  std::cout << W_I << std::endl;
   setIntensities(n, changeMatrices);
   return true;
 }
@@ -92,7 +94,6 @@ void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices){
   unsigned char* transformedImageData = (unsigned char*)malloc( newHeight * newWidth );
   std::cout << "New Height: " << newHeight << std::endl;
   std::cout << "New Width: " << newWidth << std::endl;
-  std::cout << W_I << std::endl;
   Eigen::Matrix3f invW_I = W_I.inverse();
   Eigen::Matrix3f invI_W = I_W.inverse();
 
@@ -112,9 +113,7 @@ void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices){
         transformedImageData[ (y-1)*newWidth + (x-1) ] = static_cast<unsigned char>(0);
       }
     }
-  std::cout << "good" << std::endl;
   free(_data);
-  std::cout << "good" << std::endl;
   _data = transformedImageData;
   _height = newHeight;
   _width = newWidth;

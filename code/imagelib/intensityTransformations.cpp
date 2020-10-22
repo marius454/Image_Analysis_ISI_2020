@@ -32,9 +32,13 @@ void Image::intensityNegate(){
   transformPixels();
   calculateHistogram();
 }
+
 void Image::intensityPowerLaw(float a, float gamma){
   uint16 L = pow(2, _bpp);
-  for (uint16 i = 0; i < L; i++){
+
+  _lookupTable[0] = (a * pow(0.5f / 255.0f, gamma)) * 255;
+
+  for (uint16 i = 1; i < L; i++){
     float scaledPixel = (float)i/(float)(L-1);
     _lookupTable[i] = (a * pow(scaledPixel, gamma)) * 255;
   }
@@ -42,7 +46,7 @@ void Image::intensityPowerLaw(float a, float gamma){
   calculateHistogram();
 }
 
-void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints, float* desiredValueFractionsAtPoints){
+void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints, float* desiredValueFractionsAtPoints, uint8 algorithm /*= 0*/){
   uint16 L = pow(2, _bpp);
   Interval* intervals = new Interval[numberOfSlopeChangePoints + 1];
 
@@ -70,13 +74,13 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeCha
      round(desiredValueFractionsAtPoints[numberOfSlopeChangePoints - 1] * (float)L)};
 
     intervals[0] = Interval(point1, "right", L);
-    intervals[2] = Interval(point2, "left", L);
+    intervals[numberOfSlopeChangePoints] = Interval(point2, "left", L);
 
-    for (uint16 i = 1; i < numberOfSlopeChangePoints - 1; i++){
-      Eigen::Vector2f left = Eigen::Vector2f{round(slopeChangeFractionPoints[i] * (float)L),
-       round(desiredValueFractionsAtPoints[i] / (float)L)};
-      Eigen::Vector2f right = Eigen::Vector2f{round(slopeChangeFractionPoints[i+1] * (float)L),
-       round(desiredValueFractionsAtPoints[i+1] / (float)L)};
+    for (uint16 i = 1; i < numberOfSlopeChangePoints; i++){
+      Eigen::Vector2f left = Eigen::Vector2f{round(slopeChangeFractionPoints[i-1] * (float)L),
+       round(desiredValueFractionsAtPoints[i-1] * (float)L)};
+      Eigen::Vector2f right = Eigen::Vector2f{round(slopeChangeFractionPoints[i] * (float)L),
+       round(desiredValueFractionsAtPoints[i] * (float)L)};
 
       intervals[i] = Interval(left, right);
     }
@@ -84,57 +88,68 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeCha
   else{
     std::cout << "Invalid number of slope points" << std::endl;
   }
-  uint16 point = 0;
-  for (uint16 i = 0; i < L; i++){
-    _lookupTable[i] = intervals[point].linearInterpolation(i);
-    if ((float)i == intervals[point].getRight()(0)) {
-      point ++;
+
+  // for (uint16 i = 0; i <= numberOfSlopeChangePoints; i++){
+  //   std::cout << "---------------------------" << std::endl;
+  //   std::cout << intervals[i].getLeft() << std::endl << intervals[i].getRight() << std::endl;
+  //   std::cout << "---------------------------" << std::endl;
+  // }
+  
+  if(algorithm == 0){
+    uint16 point = 0;
+    for (uint16 i = 0; i < L; i++){
+      if ((float)i == intervals[point].getRight()(0) &&
+       intervals[point].getRight()(0) != 255 && intervals[point].getRight()(0) != 256) {
+        point ++;
+      }
+      _lookupTable[i] = intervals[point].linearInterpolation(i);
     }
   }
+  else if (algorithm == 1){
+    uint16 point = 0;
+    for (uint16 i = 0; i < L; i++){
+      if ((float)i == intervals[point].getRight()(0) &&
+       intervals[point].getRight()(0) != 255 && intervals[point].getRight()(0) != 256) {
+        point ++;
+      }
+      _lookupTable[i] = intervals[point].threshold(i);
+    }
+  }
+  else if (algorithm == 2){
+    uint16 point = 0;
+    for (uint16 i = 0; i < L; i++){
+      if ((float)i == intervals[point].getRight()(0) &&
+       intervals[point].getRight()(0) != 255 && intervals[point].getRight()(0) != 256) {
+        point ++;
+      }
+      if (point == 0 || point == numberOfSlopeChangePoints){
+        _lookupTable[i] = i;
+      }
+      else{
+        _lookupTable[i] = intervals[point].threshold(i);
+      }
+    }
+  }
+  else {
+    std::cout << "Invalid algorithm identifier (must bet between 0 and 2)";
+  }
+  
   transformPixels();
   calculateHistogram();
 }
 
-Interval::Interval(Eigen::Vector2f singleVec, std::string side, uint16 L){
-  if (side == "left"){
-    _left = singleVec;
-    _right = Eigen::Vector2f{(float)(L - 1), (float)(L - 1)};
+void Image::histogramNormalization(){
+  uint16 L = pow(2, _bpp);
+  float size = (float)(_height * _width * _channels);
+  for (uint16 i = 0; i < L; i++){
+    float sumPr = 0;
+    for (uint16 j = 0; j < i; j++){
+      sumPr += (float)_histogram[j] / size;
+    }
+    _lookupTable[i] = (L - 1) * sumPr;
   }
-  else if (side == "right"){
-    _right = singleVec;
-    _left = Eigen::Vector2f{0, 0};
-  }
-  else {
-    std::cout << "Side selection must be \"left\" or \"right\"" << std::endl;
-  }
+
+  transformPixels();
+  calculateHistogram();
 }
-
-Interval::Interval(Eigen::Vector2f left, Eigen::Vector2f right){
-  _left = left;
-  _right = right;
-}
-
-float Interval::linearInterpolation(float x){
-  float x0 = _left(0);
-  float x1 = _right(0);
-  float y0 = _left(1);
-  float y1 = _right(1);
-  std::cout << x << " " << x0 << " " << y0 << " " << x1 << " " << y1 << " ";
-
-  if (x == x0) { 
-    std::cout << y0 << std::endl;
-    return y0; 
-  }
-  else if ( x == x1 ) { 
-    std::cout << y1 << std::endl;
-    return y1; 
-  }
-  else { 
-    std::cout << y0 + ((y1-y0)/(x1-x0)) * (x - x0) << std::endl;
-    return (y0 + ((y1-y0)/(x1-x0)) * (x - x0)); 
-  }
-}
-
-Eigen::Vector2f Interval::getLeft(){ return _left; }
-Eigen::Vector2f Interval::getRight(){ return _right; }
 
