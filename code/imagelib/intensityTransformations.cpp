@@ -2,25 +2,25 @@
 
 
 void Image::calculateHistogram(){
-  unsigned long size = _width * _height * _channels;
+  uint32 imgSize = _width * _height * _channels;
   for (uint32 i = 0; i < 256; i++){
     _histogram[ i ] = 0;
   }
-  for (uint32 i = 0; i < size; i++){
+  for (uint32 i = 0; i < imgSize; i++){
     uint32 intensity = (int)_data[i];
     _histogram[ intensity ] ++;
   }
 }
 
 void Image::transformPixels(){
-  for (uint32 i = 0; i < (_height * _width * _channels); i++){
+  uint32 imgSize = _height * _width * _channels;
+  for (uint32 i = 0; i < imgSize; i++){
     if (round(_lookupTable[ (int)_data[i] ]) > pow(2, _bpp) - 1){
       _data[i] = static_cast<unsigned char>(255);
     } 
     else{
       _data[i] = static_cast<unsigned char>(round(_lookupTable[ (int)_data[i] ]));
     }
-    
   }
 }
 
@@ -140,11 +140,11 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeCha
 
 void Image::histogramNormalization(){
   uint16 L = pow(2, _bpp);
-  float size = (float)(_height * _width * _channels);
+  float imgSize = (float)(_height * _width * _channels);
   for (uint16 i = 0; i < L; i++){
     float sumPr = 0;
     for (uint16 j = 0; j < i; j++){
-      sumPr += (float)_histogram[j] / size;
+      sumPr += (float)_histogram[j] / imgSize;
     }
     _lookupTable[i] = (L - 1) * sumPr;
   }

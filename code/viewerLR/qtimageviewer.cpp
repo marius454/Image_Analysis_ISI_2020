@@ -116,7 +116,13 @@ void QtImageViewer::showImage(Image *img){
 
   // copy->contrastStretching(n, xpoints, ypoints, 2);
 
-  copy->histogramNormalization();
+  // copy->histogramNormalization();
+
+  // copy->imageBlurring(5);
+
+  // copy->sharpeningUnsharpMask(5, 1);
+
+  copy->sharpeningLaplacian(true);
 
   // show copy
   showImageRight(copy); 

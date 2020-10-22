@@ -26,24 +26,23 @@ public:
 	Image(std::string filename, short directory);
 	Image(std::string filename1, std::string filename2, std::string filename3);
   Image(const Image& original);
-  // Image& operator=(const Image& original){
-  //   performCopy(original);
-  //   return *this;
-  //   };
 
 	virtual ~Image();
 	// File related
 	bool openFile(std::string filename, short directory);
 	bool combineFiles(std::string filename1, std::string filename2, std::string filename3);
-  // Tmage transformations
+  // Image transformations
 	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices);
 	// Intensity transformations
-  void transformPixels();
   void intensityNegate();
   void intensityPowerLaw(float a, float gamma);
   void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints,
    float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
-   void histogramNormalization();
+  void histogramNormalization();
+  // Spacial filtering
+  void imageBlurring(uint32 filterWidth);
+  void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
+  void sharpeningLaplacian(bool useN8 = false);
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes
@@ -80,6 +79,7 @@ private:
   unsigned char BilinearInterpolation(Eigen::Vector3f indexVec);
   void performCopy(Image const & obj);
   void calculateHistogram();
+  void transformPixels();
 };
 
 class Interval{
