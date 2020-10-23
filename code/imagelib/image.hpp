@@ -43,6 +43,7 @@ public:
   void imageBlurring(uint32 filterWidth);
   void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
   void sharpeningLaplacian(bool useN8 = false);
+  void sobelOperator();
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes

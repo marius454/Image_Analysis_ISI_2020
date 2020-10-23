@@ -20,6 +20,9 @@ void Image::imageBlurring(uint32 filterWidth){
           if (gx > 0 && gy > 0 && gx < _width && gy < _height){
             sumNeighbourhood += (int)_data[ gy*_width + gx ];
           }
+          else {
+            sumNeighbourhood += 0;
+          }
           // else{
           //   sumNeighbourhood += (int)_data[ y*_width + x ];
           // }
@@ -86,19 +89,19 @@ void Image::sharpeningLaplacian(bool useN8){
   if (!useN8){
     for (int y = 0; y < _height; y++)
       for (int x = 0; x < _width; x++){
-        int f1 = (int)_data[ y*_width + (x+1) ];
-        int f2 = (int)_data[ y*_width + (x-1) ];
-        int f3 = (int)_data[ (y+1)*_width + x ];
-        int f4 = (int)_data[ (y-1)*_width + x ];
+        int f1 = (float)_data[ y*_width + (x+1) ];
+        int f2 = (float)_data[ y*_width + (x-1) ];
+        int f3 = (float)_data[ (y+1)*_width + x ];
+        int f4 = (float)_data[ (y-1)*_width + x ];
 
         if ((x+1) >= _width) f1 = 0;
         if ((x-1) < 0) f2 = 0;
         if ((y+1) >= _height) f3 = 0;
         if ((y-1) < 0) f4 = 0;
 
-        d2f = f1 + f2 + f3 + f4 - 4*(int)_data[ y*_width + x ];
+        d2f = f1 + f2 + f3 + f4 - 4*(float)_data[ y*_width + x ];
 
-        tempImg[ y*_width + x ] = (int)_data[ y*_width + x ] + d2f;
+        tempImg[ y*_width + x ] = (float)_data[ y*_width + x ] + d2f;
         if (tempImg[ y*_width + x ] > max) max = tempImg[ y*_width + x ];
         if (tempImg[ y*_width + x ] < min) min = tempImg[ y*_width + x ];
       }
@@ -116,7 +119,7 @@ void Image::sharpeningLaplacian(bool useN8){
           for (int s = -1; s <= 1; s++){
             int gx = x+s;
             int gy = y+t;
-            if (gx > 0 && gy > 0 && gx < _width && gy < _height){
+            if (gx > 0 && gy > 0 && gx < _width && gy < _height && gx!=x && gy != y){
               d2f += (int)_data[ gy*_width + gx ];
             }
             else{
@@ -134,5 +137,57 @@ void Image::sharpeningLaplacian(bool useN8){
       tempImg[i] = ((L-1)*(tempImg[i] - min)) / (max - min);
       _data[i] = static_cast<unsigned char>((int)round(tempImg[i]));
     }
+    intensityNegate();
+  }
+
+  calculateHistogram();
+}
+
+void Image::sobelOperator(){
+  uint16 L = pow(2, _bpp);
+  uint32 imgSize = _height * _width * _channels;
+  float* tempImg = new float[imgSize];
+  float Mxy, gx, gy;
+
+  float max = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::min();
+
+  for (int y = 0; y < _height; y++)
+    for (int x = 0; x < _width; x++){
+      gx = 0;
+      gy = 0;
+      for (int t = -1; t <= 1; t++)
+        for (int s = -1; s <= 1; s++){
+          int fx = x+s;
+          int fy = y+t;
+          if (fx > 0 && fy > 0 && fx < _width && fy < _height){
+            if (s == 0) {
+              gy += t*2*(float)_data[ fy*_width + fx ];
+            } else{
+              gy += t*(float)_data[ fy*_width + fx ];
+            }
+
+            if (t == 0) {
+              gx += s*2*(float)_data[ fy*_width + fx ];
+            } else{
+              gx += s*(float)_data[ fy*_width + fx ];
+            }
+          }
+          else{
+            gx += 0;
+            gy += 0;
+          }
+        }
+      Mxy = sqrt(pow(gx, 2) + pow(gy, 2));
+      // Mxy = abs(gx) + abs(gy);
+
+      tempImg[ y*_width + x ] = Mxy;
+      if (tempImg[ y*_width + x ] > max) max = tempImg[ y*_width + x ];
+      if (tempImg[ y*_width + x ] < min) min = tempImg[ y*_width + x ];
+    }
+    
+  for(uint32 i = 0; i < imgSize; i++){
+    tempImg[i] = ((L-1)*(tempImg[i] - min)) / (max - min);
+    _data[i] = static_cast<unsigned char>((int)round(tempImg[i]));
   }
 }

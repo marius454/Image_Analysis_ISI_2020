@@ -122,7 +122,9 @@ void QtImageViewer::showImage(Image *img){
 
   // copy->sharpeningUnsharpMask(5, 1);
 
-  copy->sharpeningLaplacian(true);
+  // copy->sharpeningLaplacian(true);
+
+  copy->sobelOperator();
 
   // show copy
   showImageRight(copy); 
