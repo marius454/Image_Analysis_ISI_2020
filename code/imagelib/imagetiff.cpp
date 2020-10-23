@@ -81,10 +81,6 @@ unsigned char* loadTiffStrip(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
   return imgData;
 }
 
-unsigned char* loadTiffScanline(TIFF* tiff) {
-  // ...
-}
-
 unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, unsigned char* img3Data, uint32 imageWidth, uint32 imageLength){
   uint32 imgSize;
   unsigned char* imgData = (unsigned char*) malloc(imageWidth * imageLength * 3);

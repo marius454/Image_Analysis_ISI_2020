@@ -98,9 +98,11 @@ void QtImageViewer::showFile(const QString filename){
 
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
+  Image *copy = new Image(*(img));
+  img->Fig3_43('f');
   showImageLeft(img);
   //create a copy
-  Image *copy = new Image(*(img));
+  //Image *copy = new Image(*(img));
 
   // transform copy
   // copy->intensityNegate();
@@ -124,7 +126,9 @@ void QtImageViewer::showImage(Image *img){
 
   // copy->sharpeningLaplacian(true);
 
-  copy->sobelOperator();
+  // copy->sobelOperator();
+
+  copy->Fig3_43('g');
 
   // show copy
   showImageRight(copy); 

@@ -30,7 +30,59 @@ Eigen::Matrix3f WorldToIndex(BBox bbox, float pixelUnit){
   return W_I;
 }
 
-bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices){
+float degreesToRadians(float degree){
+  float pi = 3.14159265359;
+  return (degree * (pi / 180));
+}
+
+void Image::scaleImage(std::string interpolationScheme, float scaleX, float scaleY){
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,0) = scaleX;
+  m(1,1) = scaleY;
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+void Image::rotateImage(std::string interpolationScheme, float degreeOfRotation){
+  degreeOfRotation = degreesToRadians(degreeOfRotation);
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,0) = cos(degreeOfRotation);
+  m(1,1) = cos(degreeOfRotation);
+  m(1,0) = -sin(degreeOfRotation);
+  m(0,1) = sin(degreeOfRotation);
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+void Image::shearImage(std::string interpolationScheme, float shearAmount){
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,1) = shearAmount;
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices, bool userNN){
   if (_channels > 1){
     std::cout << "Only grayscale images can be manipulated" << std::endl;
     std::exit(0);
@@ -46,11 +98,9 @@ bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices){
   }
 
   I_W = IndexToWorld(_bbox, 1);
-  std::cout << I_W << std::endl;
   recalculateBBox(n, changeMatrices);
   W_I = WorldToIndex(_bbox, 1);
-  std::cout << W_I << std::endl;
-  setIntensities(n, changeMatrices);
+  setIntensities(n, changeMatrices, userNN);
   return true;
 }
 
@@ -88,7 +138,7 @@ void Image::recalculateBBox(unsigned short n, Eigen::Matrix3f *changeMatrices){
   _bbox.minY = minY;
 }
 
-void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices){
+void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices, bool useNN){
   unsigned int newHeight = static_cast<unsigned int>(abs(ceil((_bbox.maxY + 1) - _bbox.minY)));
   unsigned int newWidth = static_cast<unsigned int>(abs(ceil((_bbox.maxX + 1) - _bbox.minX)));
   unsigned char* transformedImageData = (unsigned char*)malloc( newHeight * newWidth );
@@ -108,7 +158,8 @@ void Image::setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices){
       indexVec(0) = indexVec(0) - 1;
       indexVec(1) = indexVec(1) - 1;
       if (indexVec(0) >= 0 && indexVec(0) <= _width - 1 && indexVec(1) >= 0 && indexVec(1) <= _height - 1){
-        transformedImageData[ (y-1)*newWidth + (x-1) ] = NN(indexVec);
+        if (useNN) transformedImageData[ (y-1)*newWidth + (x-1) ] = NN(indexVec);
+        else transformedImageData[ (y-1)*newWidth + (x-1) ] = bilinearInterpolation(indexVec);
       } else{
         transformedImageData[ (y-1)*newWidth + (x-1) ] = static_cast<unsigned char>(0);
       }
@@ -126,7 +177,7 @@ unsigned char Image::NN(Eigen::Vector3f indexVec){
   return _data[ old_y * _width + old_x ];
 }
 
-unsigned char Image::BilinearInterpolation(Eigen::Vector3f indexVec){
+unsigned char Image::bilinearInterpolation(Eigen::Vector3f indexVec){
   float old_x = indexVec(0);
   float old_y = indexVec(1);
   Eigen::Vector2i p0, p1, p2, p3;

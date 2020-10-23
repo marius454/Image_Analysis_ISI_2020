@@ -32,7 +32,10 @@ public:
 	bool openFile(std::string filename, short directory);
 	bool combineFiles(std::string filename1, std::string filename2, std::string filename3);
   // Image transformations
-	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices);
+	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices, bool useNN = true);
+  void scaleImage(std::string interpolationScheme, float scaleX, float scaleY);
+  void rotateImage(std::string interpolationScheme, float degreeOfRotation);
+  void shearImage(std::string interpolationScheme, float shearAmount);
 	// Intensity transformations
   void intensityNegate();
   void intensityPowerLaw(float a, float gamma);
@@ -42,8 +45,9 @@ public:
   // Spacial filtering
   void imageBlurring(uint32 filterWidth);
   void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
-  void sharpeningLaplacian(bool useN8 = false);
+  void sharpeningLaplacian(bool useN8 = false, bool getOnlyLaplacian = false);
   void sobelOperator();
+  void Fig3_43(char imgLetter);
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes
@@ -75,9 +79,9 @@ private:
 	// any other...
 	bool loadCombinedTiff(std::string filename1, std::string filename2, std::string filename3);
   void recalculateBBox(unsigned short n, Eigen::Matrix3f *changeMatrices);
-  void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices);
+  void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices, bool userNN = true);
   unsigned char NN(Eigen::Vector3f indexVec);
-  unsigned char BilinearInterpolation(Eigen::Vector3f indexVec);
+  unsigned char bilinearInterpolation(Eigen::Vector3f indexVec);
   void performCopy(Image const & obj);
   void calculateHistogram();
   void transformPixels();
