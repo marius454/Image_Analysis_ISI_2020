@@ -9,7 +9,7 @@ TARGET = libimagelib.so
 all: $(TARGET)
 
 $(TARGET): $(HEADERS) $(OBJS)
-	g++ $(OBJS) -shared -o $(TARGET)
+	g++ $(OBJS) -shared -lm -ldl -o $(TARGET)
 
 # '$@' matches target, '%<' matches source
 %.o: %.cpp image.hpp
