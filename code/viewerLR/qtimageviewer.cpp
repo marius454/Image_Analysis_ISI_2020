@@ -98,12 +98,11 @@ void QtImageViewer::showFile(const QString filename){
 
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
-  Image *copy = new Image(*(img));
-  img->Fig3_43('f');
-  showImageLeft(img);
   //create a copy
-  //Image *copy = new Image(*(img));
-
+  
+  // img->Fig3_43('f');
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
   // transform copy
   // copy->intensityNegate();
   // copy->intensityPowerLaw(1, 0.3);
@@ -132,6 +131,68 @@ void QtImageViewer::showImage(Image *img){
 
   // show copy
   showImageRight(copy); 
+  delete(copy); // copy not needed anymore
+}
+
+void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){
+  std::cout<<"Transform and show Image! "<<std::endl;
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+  if (transformationType == "negate"){
+    copy->intensityNegate();
+  }
+  else if (transformationType == "powerlaw"){
+    copy->intensityPowerLaw(values[0]);
+  }
+  else if (transformationType == "contrastlinear" || transformationType == "contrastthreshold"
+   || transformationType == "contrastslice"){
+    float* xpoints = new float[nrOfValues / 2];
+    float* ypoints = new float[nrOfValues / 2];
+    int j = 0;
+    for (int i = 0; i < nrOfValues; i++){
+      if (i % 2 == 0) xpoints[j] = values[i];
+      else{
+        ypoints[j] = values[i];
+        j++;
+      } 
+    }
+    if (transformationType == "contrastlinear") copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 0);
+    else if (transformationType == "contrastthreshold") copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 1);
+    else copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 2);
+  }
+  else if (transformationType == "normalize"){
+    copy->histogramNormalization();
+  }
+  else if (transformationType == "blur"){
+    copy->imageBlurring((int)values[0]);
+  }
+  else if (transformationType == "unsharpmask"){
+    copy->sharpeningUnsharpMask((int)values[0], 1);
+  }
+  else if (transformationType == "laplacian"){
+    if (values[0] == 0) copy->sharpeningLaplacian(false);
+    else copy->sharpeningLaplacian(true);
+  }
+  else if (transformationType == "sobel"){
+    copy->sobelOperator();
+  }
+
+  showImageRight(copy);
+  delete(copy);
+
+  update(); // For Qt to redraw with new image
+  delete(img);
+}
+
+void QtImageViewer::showImage(Image *img, char left, char right){
+  std::cout<<"Transform and show Image! "<<std::endl;
+  //create a copy
+  Image *copy = new Image(*(img));
+  img->Fig3_43(left);
+  showImageLeft(img);
+
+  copy->Fig3_43(right);
+  showImageRight(copy);
   delete(copy); // copy not needed anymore
 }
 

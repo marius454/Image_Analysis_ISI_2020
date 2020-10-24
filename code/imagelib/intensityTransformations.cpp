@@ -33,14 +33,14 @@ void Image::intensityNegate(){
   calculateHistogram();
 }
 
-void Image::intensityPowerLaw(float a, float gamma){
+void Image::intensityPowerLaw(float gamma){
   uint16 L = pow(2, _bpp);
 
-  _lookupTable[0] = (a * pow(0.5f / 255.0f, gamma)) * 255;
+  _lookupTable[0] = pow(0.5f / 255.0f, gamma) * 255;
 
   for (uint16 i = 1; i < L; i++){
     float scaledPixel = (float)i/(float)(L-1);
-    _lookupTable[i] = (a * pow(scaledPixel, gamma)) * 255;
+    _lookupTable[i] = pow(scaledPixel, gamma) * 255;
   }
   transformPixels();
   calculateHistogram();
@@ -88,12 +88,6 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeCha
   else{
     std::cout << "Invalid number of slope points" << std::endl;
   }
-
-  // for (uint16 i = 0; i <= numberOfSlopeChangePoints; i++){
-  //   std::cout << "---------------------------" << std::endl;
-  //   std::cout << intervals[i].getLeft() << std::endl << intervals[i].getRight() << std::endl;
-  //   std::cout << "---------------------------" << std::endl;
-  // }
   
   if(algorithm == 0){
     uint16 point = 0;

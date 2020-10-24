@@ -43,7 +43,7 @@ void Image::imageBlurring(uint32 filterWidth){
   for (uint32 i = 0; i < imgSize; i++){
     _data[i] = static_cast<unsigned char>((int)round(tempImg[i]));
   }
-
+  delete(tempImg);
   calculateHistogram();
 }
 
@@ -83,7 +83,7 @@ void Image::sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k){
     tempImg[i] = ((L-1)*(tempImg[i] - min)) / (max - min);
     _data[i] = static_cast<unsigned char>((int)round(tempImg[i]));
   }
-
+  delete(tempImg);
   calculateHistogram();
 }
 
@@ -134,7 +134,7 @@ void Image::sharpeningLaplacian(bool useN8, bool getOnlyLaplacian){
       _data[i] = static_cast<unsigned char>((int)round(tempImg[i]));
     }
   }
-
+  delete(tempImg);
   calculateHistogram();
 }
 
@@ -181,7 +181,10 @@ void Image::Fig3_43(char imgLetter){
   }
 
   sharpeningLaplacian(false, true);
-  if (imgLetter == 'b') return;
+  if (imgLetter == 'b'){
+    delete(a);
+    return;
+  }
   unsigned char* b = new unsigned char[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     b[i] = _data[i];
@@ -191,7 +194,11 @@ void Image::Fig3_43(char imgLetter){
   }
   
   sharpeningLaplacian(false, false);
-  if (imgLetter == 'c') return;
+  if (imgLetter == 'c'){
+    delete(a);
+    delete(b);
+    return;
+  }
   unsigned char* c = new unsigned char[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     c[i] = _data[i];
@@ -201,14 +208,22 @@ void Image::Fig3_43(char imgLetter){
   }
 
   sobelOperator();
-  if (imgLetter == 'd') return;
+  if (imgLetter == 'd'){
+    delete(a);
+    delete(b);
+    delete(c);
+    return;
+  } 
   unsigned char* d = new unsigned char[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     d[i] = _data[i];
   }
 
   imageBlurring(5);
-  if (imgLetter == 'e') return;
+  if (imgLetter == 'e'){
+    delete(d);
+    return;
+  } 
   unsigned char* e = new unsigned char[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     e[i] = _data[i];
@@ -234,6 +249,12 @@ void Image::Fig3_43(char imgLetter){
     for (uint32 i = 0; i < imgSize; i++){
       _data[i] = f[i];
     }
+    delete(a);
+    delete(b);
+    delete(c);
+    delete(d);
+    delete(e);
+    delete(f);
     calculateHistogram();
     return;
   }
@@ -255,14 +276,29 @@ void Image::Fig3_43(char imgLetter){
     for (uint32 i = 0; i < imgSize; i++){
       _data[i] = g[i];
     }
+    delete(a);
+    delete(b);
+    delete(c);
+    delete(d);
+    delete(e);
+    delete(f);
+    delete(g);
     calculateHistogram();
     return;
   }
 
-  intensityPowerLaw(1,0.5);
+  intensityPowerLaw(0.5);
   if (imgLetter == 'h') return;
   unsigned char* h = new unsigned char[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     h[i] = _data[i];
   }
+  delete(a);
+  delete(b);
+  delete(c);
+  delete(d);
+  delete(e);
+  delete(f);
+  delete(g);
+  delete(h);
 }

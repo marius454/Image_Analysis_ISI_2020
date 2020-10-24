@@ -36,9 +36,10 @@ public:
   void scaleImage(std::string interpolationScheme, float scaleX, float scaleY);
   void rotateImage(std::string interpolationScheme, float degreeOfRotation);
   void shearImage(std::string interpolationScheme, float shearAmount);
+  void presetTransformations(std::string interpolationScheme, uint8 transformationNumber);
 	// Intensity transformations
   void intensityNegate();
-  void intensityPowerLaw(float a, float gamma);
+  void intensityPowerLaw(float gamma);
   void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints,
    float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
   void histogramNormalization();

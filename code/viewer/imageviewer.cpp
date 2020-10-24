@@ -67,7 +67,45 @@ int main(int argc, char** argv){
         std::exit(0);
       }
     }
-    
+    else if (std::string(argv[1]) == "transform1"){
+      if (argc == 4){
+        QString filename(argv[3]);
+        Image* myImage = new Image(filename.toStdString());
+        std::cout<<"Loading and transforming: "<<filename.toStdString()<<std::endl;
+        myImage->presetTransformations(std::string(argv[2]), 0);
+        imv->showFile(myImage);
+      }
+      else{
+        std::cout << "Invalid number of arguments for operation 'transform'" << std::endl;
+        std::exit(0);
+      }
+    }
+    else if (std::string(argv[1]) == "transform2"){
+      if (argc == 4){
+        QString filename(argv[3]);
+        Image* myImage = new Image(filename.toStdString());
+        std::cout<<"Loading and transforming: "<<filename.toStdString()<<std::endl;
+        myImage->presetTransformations(std::string(argv[2]), 1);
+        imv->showFile(myImage);
+      }
+      else{
+        std::cout << "Invalid number of arguments for operation 'transform'" << std::endl;
+        std::exit(0);
+      }
+    }
+    else if (std::string(argv[1]) == "transform3"){
+      if (argc == 4){
+        QString filename(argv[3]);
+        Image* myImage = new Image(filename.toStdString());
+        std::cout<<"Loading and transforming: "<<filename.toStdString()<<std::endl;
+        myImage->presetTransformations(std::string(argv[2]), 2);
+        imv->showFile(myImage);
+      }
+      else{
+        std::cout << "Invalid number of arguments for operation 'transform'" << std::endl;
+        std::exit(0);
+      }
+    }
     else if (argc == 3){
       QString filename(argv[1]);
       std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;

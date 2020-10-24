@@ -30,58 +30,6 @@ Eigen::Matrix3f WorldToIndex(BBox bbox, float pixelUnit){
   return W_I;
 }
 
-float degreesToRadians(float degree){
-  float pi = 3.14159265359;
-  return (degree * (pi / 180));
-}
-
-void Image::scaleImage(std::string interpolationScheme, float scaleX, float scaleY){
-  Eigen::Matrix3f m;
-  m.setIdentity();
-  m(0,0) = scaleX;
-  m(1,1) = scaleY;
-  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
-  ms[0] = m;
-  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
-  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
-  else {
-    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
-    std::exit(0);
-  }
-}
-
-void Image::rotateImage(std::string interpolationScheme, float degreeOfRotation){
-  degreeOfRotation = degreesToRadians(degreeOfRotation);
-  Eigen::Matrix3f m;
-  m.setIdentity();
-  m(0,0) = cos(degreeOfRotation);
-  m(1,1) = cos(degreeOfRotation);
-  m(1,0) = -sin(degreeOfRotation);
-  m(0,1) = sin(degreeOfRotation);
-  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
-  ms[0] = m;
-  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
-  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
-  else {
-    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
-    std::exit(0);
-  }
-}
-
-void Image::shearImage(std::string interpolationScheme, float shearAmount){
-  Eigen::Matrix3f m;
-  m.setIdentity();
-  m(0,1) = shearAmount;
-  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
-  ms[0] = m;
-  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
-  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
-  else {
-    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
-    std::exit(0);
-  }
-}
-
 bool Image::manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices, bool userNN){
   if (_channels > 1){
     std::cout << "Only grayscale images can be manipulated" << std::endl;
@@ -236,6 +184,154 @@ unsigned char Image::bilinearInterpolation(Eigen::Vector3f indexVec){
     return static_cast<unsigned char>((int)round(vs));
   }
 }
+
+// This part is used for command line UI implementation
+
+float degreesToRadians(float degree){
+  float pi = 3.14159265359;
+  return (degree * (pi / 180));
+}
+
+void Image::scaleImage(std::string interpolationScheme, float scaleX, float scaleY){
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,0) = scaleX;
+  m(1,1) = scaleY;
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+void Image::rotateImage(std::string interpolationScheme, float degreeOfRotation){
+  degreeOfRotation = degreesToRadians(degreeOfRotation);
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,0) = cos(degreeOfRotation);
+  m(1,1) = cos(degreeOfRotation);
+  m(1,0) = -sin(degreeOfRotation);
+  m(0,1) = sin(degreeOfRotation);
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+void Image::shearImage(std::string interpolationScheme, float shearAmount){
+  Eigen::Matrix3f m;
+  m.setIdentity();
+  m(0,1) = shearAmount;
+  Eigen::Matrix3f* ms = new Eigen::Matrix3f[1];
+  ms[0] = m;
+  if (interpolationScheme == "nn") manipulateImage(1, ms, true);
+  else if (interpolationScheme == "bilin") manipulateImage(1, ms, false);
+  else {
+    std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+    std::exit(0);
+  }
+}
+
+// A few preset composite transformation to show them off
+void Image::presetTransformations(std::string interpolationScheme, uint8 transformationNumber){
+  if (transformationNumber == 0){
+    unsigned short n = 2;
+    Eigen::Matrix3f m;
+    m.setIdentity();
+    //scale by 10x by both axies
+    m(0,0) = 10.0f;
+    m(1,1) = 10.0f;
+    Eigen::Matrix3f m1;
+    m1.setIdentity();
+    //rotate 30 degrees
+    m1(0,0) = 0.866f;
+    m1(1,1) = 0.866f;
+    m1(1,0) = -0.5f;
+    m1(0,1) = 0.5f;
+
+    Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
+    ms[0] = m;
+    ms[1] = m1;
+    if (interpolationScheme == "nn") manipulateImage(n, ms, true);
+    else if (interpolationScheme == "bilin") manipulateImage(n, ms, false);
+    else {
+      std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+      std::exit(0);
+    }
+  }
+  else if (transformationNumber == 1){
+    unsigned short n = 3;
+    Eigen::Matrix3f m;
+    m.setIdentity();
+    //sheer by 0.7
+    m(0,1) = 0.7f;
+    Eigen::Matrix3f m1;
+    m1.setIdentity();
+    //rotate 45 degrees
+    m1(0,0) = cos(degreesToRadians(45));
+    m1(1,1) = cos(degreesToRadians(45));
+    m1(1,0) = -sin(degreesToRadians(45));
+    m1(0,1) = sin(degreesToRadians(45));
+    Eigen::Matrix3f m2;
+    m2.setIdentity();
+    //scale by 3 on x axis and by 1.5 on y axis
+    m2(0,0) = 3.0f;
+    m2(1,1) = 1.5f;
+
+    Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
+    ms[0] = m;
+    ms[1] = m1;
+    ms[2] = m2;
+    if (interpolationScheme == "nn") manipulateImage(n, ms, true);
+    else if (interpolationScheme == "bilin") manipulateImage(n, ms, false);
+    else {
+      std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+      std::exit(0);
+    }
+  }
+  else if (transformationNumber == 2){
+    unsigned short n = 3;
+    Eigen::Matrix3f m;
+    m.setIdentity();
+    //rotate 20 degrees
+    m(0,0) = cos(degreesToRadians(20));
+    m(1,1) = cos(degreesToRadians(20));
+    m(1,0) = -sin(degreesToRadians(20));
+    m(0,1) = sin(degreesToRadians(20));
+    Eigen::Matrix3f m1;
+    m1.setIdentity();
+    //scale by 2 on x axis and by 4 on y axis
+    m1(0,0) = 2.0f;
+    m1(1,1) = 4.0f;
+    Eigen::Matrix3f m2;
+    m2.setIdentity();
+    //sheer by 0.3
+    m2(0,1) = 0.3f;
+
+    Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
+    ms[0] = m;
+    ms[1] = m1;
+    ms[2] = m2;
+    if (interpolationScheme == "nn") manipulateImage(n, ms, true);
+    else if (interpolationScheme == "bilin") manipulateImage(n, ms, false);
+    else {
+      std::cout << "Invalid interpolation scheme, must be 'nn' or 'bilin'";
+      std::exit(0);
+    }
+  }
+  else {
+    std::cout << "Invalid transformation number, must be between 0 and 2";
+  }
+  
+}
+
 
 // leaving this here so i dont foget the syntax
 // std::this_thread::sleep_for(std::chrono::seconds(30));
