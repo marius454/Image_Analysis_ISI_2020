@@ -16,8 +16,8 @@ bool readTiffMetaData(TIFF *tiff, short directory) {
 unsigned char* loadTiffTiled(TIFF* tiff, uint32 imageWidth, uint32 imageLength, short channels) {
   uint32 tileWidth, tileLength;
     
-    TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
-    TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
+  TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileWidth);
+  TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileLength);
 
   std::cout << "Image resolution: " << imageWidth << "x" << imageLength << std::endl;
   std::cout << "Tile resolution: " << tileWidth << "x" << tileLength << std::endl;

@@ -49,6 +49,8 @@ public:
   void sharpeningLaplacian(bool useN8 = false, bool getOnlyLaplacian = false);
   void sobelOperator();
   void Fig3_43(char imgLetter);
+  // Fourier transform
+  
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes
