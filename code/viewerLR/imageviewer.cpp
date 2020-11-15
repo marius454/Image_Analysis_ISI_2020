@@ -30,6 +30,10 @@ int main(int argc, char** argv){
       || func == "sobel" || func == "fig3-43"){
         uiActions(argc, argv, imv);
       }
+    else{
+      std::cout << "No such command exists for this program" << std::endl;
+      std::exit(0);
+    }
   }
   imv->show();
   imv->resize(1000,600);

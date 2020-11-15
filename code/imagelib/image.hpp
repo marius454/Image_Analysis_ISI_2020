@@ -11,6 +11,7 @@
 #include <thread>
 #include <chrono>
 #include <tiffio.h>
+#include <fftw3.h>
 
 struct BBox{
   float maxX;
@@ -50,7 +51,9 @@ public:
   void sobelOperator();
   void Fig3_43(char imgLetter);
   // Fourier transform
-  
+  void padImage(uint32 xMultiplier, uint32 yMultiplier);
+  void fourierTransform(char imgLetter);
+  // void DFT();
   // Image related
 	unsigned char* getImageData() const;
 	// Get attributes
@@ -72,22 +75,27 @@ private:
   std::vector<unsigned int> _histogram = std::vector<unsigned int>(256,0);
 
 	unsigned char* _data{nullptr};
+  fftw_complex* _complexData{nullptr};
 	BBox _bbox;
   Eigen::Matrix3f I_W;
   Eigen::Matrix3f W_I;
-	// Tiff related stuff
+	// Tiff related
 	bool loadTiff(std::string filename, short directory);
-	// Jpeg related stuff
-	bool loadJpeg(std::string filename);
-	// any other...
 	bool loadCombinedTiff(std::string filename1, std::string filename2, std::string filename3);
+	// Jpeg related
+	bool loadJpeg(std::string filename);
+  // Image transformation related
   void recalculateBBox(unsigned short n, Eigen::Matrix3f *changeMatrices);
   void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices, bool userNN = true);
   unsigned char NN(Eigen::Vector3f indexVec);
   unsigned char bilinearInterpolation(Eigen::Vector3f indexVec);
   void performCopy(Image const & obj);
+  // Intensity transformation related
   void calculateHistogram();
   void transformPixels();
+  // Fourier transform related
+  float* shiftedForPeriodicity(bool visualise = false);
+  void DFT(float* tempImgData, bool visualise);
 };
 
 class Interval{

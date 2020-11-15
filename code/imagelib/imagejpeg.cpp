@@ -33,7 +33,7 @@ bool Image::loadJpeg(std::string filename){
   imgData = (unsigned char*)malloc(_height * _width * _channels);
   while ((&cinfo)->output_scanline < (&cinfo)->output_height){
     rowBuffer[0] = (unsigned char*)
-      (&imgData[3*cinfo.output_width*cinfo.output_scanline]);
+      (&imgData[_channels*cinfo.output_width*cinfo.output_scanline]);
     jpeg_read_scanlines(&cinfo, rowBuffer, 1);
   }
 

@@ -98,40 +98,16 @@ void QtImageViewer::showFile(const QString filename){
 
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
-  //create a copy
-  
-  // img->Fig3_43('f');
+  // Show original image on the left.
   showImageLeft(img);
+  // Create a copy of the image.
   Image *copy = new Image(*(img));
-  // transform copy
-  // copy->intensityNegate();
-  // copy->intensityPowerLaw(1, 0.3);
+  // Transform copy.
+  copy->fourierTransform('d');
 
-  // uint16 n = 2;
-  // float xpoints[n] = {0.375f, 0.625f};
-  // float ypoints[n] = {0.125f, 0.875f};
-
-  // uint16 n = 2;
-  // float xpoints[n] = {0.9f, 1.0f};
-  // float ypoints[n] = {0.3f, 0.0f};
-
-  // copy->contrastStretching(n, xpoints, ypoints, 2);
-
-  // copy->histogramNormalization();
-
-  // copy->imageBlurring(5);
-
-  // copy->sharpeningUnsharpMask(5, 1);
-
-  // copy->sharpeningLaplacian(true);
-
-  // copy->sobelOperator();
-
-  copy->Fig3_43('g');
-
-  // show copy
+  // Show transformed copy on the right.
   showImageRight(copy); 
-  delete(copy); // copy not needed anymore
+  delete(copy);
 }
 
 void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){

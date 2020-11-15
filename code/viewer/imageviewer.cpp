@@ -44,6 +44,10 @@ int main(int argc, char** argv){
       }
       else invalidUiCall(func);
     }
+    else{
+      std::cout << "No such command exists for this program" << std::endl;
+      std::exit(0);
+    }
   }
   // Draw our GUI
   imv->show();
