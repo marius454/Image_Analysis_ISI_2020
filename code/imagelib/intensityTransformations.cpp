@@ -33,17 +33,25 @@ void Image::intensityNegate(){
   calculateHistogram();
 }
 
-void Image::intensityPowerLaw(float gamma){
+void Image::intensityPowerLaw(float gamma, bool isFloat){
   uint16 L = pow(2, _bpp);
 
-  _lookupTable[0] = pow(0.5f / 255.0f, gamma) * 255;
-
-  for (uint16 i = 1; i < L; i++){
-    float scaledPixel = (float)i/(float)(L-1);
-    _lookupTable[i] = pow(scaledPixel, gamma) * 255;
+  if (isFloat){
+    uint32 imgSize = _width * _height * _channels;
+    for (uint32 i = 0; i < imgSize; i++){
+      float scaledPixel = _floatData[i]/(L-1);
+      _floatData[i] = pow(scaledPixel, gamma) * (L-1);
+    }
   }
-  transformPixels();
-  calculateHistogram();
+  else {
+    _lookupTable[0] = pow(0.5f / float(L-1), gamma) * (L-1);
+    for (uint16 i = 1; i < L; i++){
+      float scaledPixel = (float)i/(float)(L-1);
+      _lookupTable[i] = pow(scaledPixel, gamma) * (L-1);
+    }
+    transformPixels();
+    calculateHistogram();
+  }
 }
 
 void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints, float* desiredValueFractionsAtPoints, uint8 algorithm /*= 0*/){

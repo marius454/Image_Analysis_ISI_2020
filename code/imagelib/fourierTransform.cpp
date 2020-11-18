@@ -6,32 +6,33 @@
 
 
 void Image::fourierTransform(char imgLetter){
-  float* tempImgData;
-
   padImage(2, 2);
   if (imgLetter == 'b') return;
   if (imgLetter == 'c'){
-    tempImgData = shiftedForPeriodicity(true);
-    delete(tempImgData);
+    shiftForPeriodicity(true);
     calculateHistogram();
     return;
   }
-  tempImgData = shiftedForPeriodicity(false);
+  shiftForPeriodicity(false);
 
   // uint32 imgSize = _width * _height * _channels;
-  // tempImgData = new float[imgSize];
+  // _floatData = new float[imgSize];
   // for (uint32 i = 0; i < imgSize; i++){
-  //   tempImgData[i] = _data[i];
+  //   _floatData[i] = _data[i];
   // }
 
   if (imgLetter == 'd'){
-    DFT(tempImgData, true);
-    delete(tempImgData);
-    histogramNormalization();
+    DFT(true);
     calculateHistogram();
     return;
   }
-  DFT(tempImgData, false);
+  DFT(false);
+  if (imgLetter == 'e'){
+    IDFT(true);
+    calculateHistogram();
+    return;
+  }
+  IDFT(false);
 }
 
 void Image::padImage(uint32 xMultiplier, uint32 yMultiplier){
@@ -73,8 +74,8 @@ void Image::padImage(uint32 xMultiplier, uint32 yMultiplier){
   calculateHistogram();
 }
 
-float* Image::shiftedForPeriodicity(bool visualise){
-  float* tempImgData = new float[_width * _height * _channels];
+void Image::shiftForPeriodicity(bool visualise){
+  if (!visualise) _floatData = new float[_width * _height * _channels];
   int shift;
   int maxIntensity = pow(2, _bpp) - 1;
   for (uint32 y = 0; y < _height; y++)
@@ -82,42 +83,69 @@ float* Image::shiftedForPeriodicity(bool visualise){
       if ((x+y) % 2 == 0) shift = 1;
       else shift = -1;
 
-      tempImgData[y*_width + x] = _data[y*_width + x] * shift;
       if (visualise) _data[y*_width + x] = _data[y*_width + x] * shift;
+      else _floatData[y*_width + x] = _data[y*_width + x] * shift;
     }
-  return tempImgData;
+  if (visualise) delete(_floatData);
 }
 
-void Image::DFT(float* tempImgData, bool visualise){
-  uint16 L = pow(2, _bpp);
+void Image::DFT(bool visualise){
   uint32 imgSize = _width * _height * _channels;
   fftw_complex* in = new fftw_complex[imgSize];
   _complexData = new fftw_complex[imgSize];
 
   for (uint32 i = 0; i < imgSize; i++){
-    in[i][REAL] = tempImgData[i];
+    in[i][REAL] = _floatData[i] / imgSize;
     in[i][IMAG] = 0;
   }
+  delete(_floatData);
 
   fftw_plan DFT = fftw_plan_dft_2d (_width, _height, in, _complexData, FFTW_FORWARD, FFTW_ESTIMATE);
   fftw_execute(DFT);
   fftw_destroy_plan(DFT);
+  delete(in);
   fftw_cleanup();
 
-  double* complexToReal = new double[imgSize];
-  double max = std::numeric_limits<float>::min();
-  double min = std::numeric_limits<float>::min();
+  if (visualise){
+    uint16 L = pow(2, _bpp);
+    _floatData = new float[imgSize];
+    double max = std::numeric_limits<float>::min();
+    double min = std::numeric_limits<float>::min();
 
-  for (uint32 i = 0; i < imgSize; i++){
-    complexToReal[i] = sqrt(pow(_complexData[i][REAL], 2) + pow(_complexData[i][IMAG], 2));
-    // complexToReal[i] = abs(_complexData[i][REAL]) + abs(_complexData[i][IMAG]);
-    // complexToReal[i] = abs(_complexData[i][REAL] + _complexData[i][IMAG]);
-    if (complexToReal[i] < min) min = complexToReal[i];
-    if (complexToReal[i] > max) max = complexToReal[i];
+    for (uint32 i = 0; i < imgSize; i++){
+      _floatData[i] = sqrt(pow(_complexData[i][REAL], 2) + pow(_complexData[i][IMAG], 2));
+      if (_floatData[i] < min) min = _floatData[i];
+      if (_floatData[i] > max) max = _floatData[i];
+    }
+    for (uint32 i = 0; i < imgSize; i++){
+      _floatData[i] = ((L-1)*(_floatData[i] - min)) / (max - min);
+    }
+    intensityPowerLaw(0.1, true);
+    for (uint32 i = 0; i < imgSize; i++){
+      _data[i] = static_cast<unsigned char>((int)round(_floatData[i]));
+    }
   }
+}
+
+void Image::IDFT(bool visualise){
+  uint32 imgSize = _width * _height * _channels;
+  fftw_complex* out = new fftw_complex[imgSize];
+
+  fftw_plan IDFT = fftw_plan_dft_2d (_width, _height, _complexData, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+  fftw_execute(IDFT);
+  fftw_destroy_plan(IDFT);
+  // delete(_complexData);
+  fftw_cleanup();
+
+  if (!visualise) _floatData = new float[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
-    complexToReal[i] = ((L-1)*(complexToReal[i] - min)) / (max - min);
-    _data[i] = static_cast<unsigned char>((int)complexToReal[i]);
+    if (visualise){
+      _data[i] = static_cast<int>(out[i][REAL]);
+      // if (i < _width / 2){
+      //   std::cout << "(" << out[i][REAL] << ", " << out[i][IMAG] << ") ";
+      // }
+    } 
+    else _floatData[i] = out[i][REAL];
   }
   std::cout << std::endl;
 }

@@ -40,7 +40,7 @@ public:
   void presetTransformations(std::string interpolationScheme, uint8 transformationNumber);
 	// Intensity transformations
   void intensityNegate();
-  void intensityPowerLaw(float gamma);
+  void intensityPowerLaw(float gamma, bool isFloat = false);
   void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints,
    float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
   void histogramNormalization();
@@ -74,8 +74,11 @@ private:
   float* _lookupTable = new float[256];
   std::vector<unsigned int> _histogram = std::vector<unsigned int>(256,0);
 
+  // data in different formats
 	unsigned char* _data{nullptr};
   fftw_complex* _complexData{nullptr};
+  float* _floatData{nullptr};
+
 	BBox _bbox;
   Eigen::Matrix3f I_W;
   Eigen::Matrix3f W_I;
@@ -94,8 +97,9 @@ private:
   void calculateHistogram();
   void transformPixels();
   // Fourier transform related
-  float* shiftedForPeriodicity(bool visualise = false);
-  void DFT(float* tempImgData, bool visualise);
+  void shiftForPeriodicity(bool visualise);
+  void DFT(bool visualise);
+  void IDFT(bool visualise);
 };
 
 class Interval{
