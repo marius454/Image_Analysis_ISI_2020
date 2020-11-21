@@ -99,15 +99,16 @@ void QtImageViewer::showFile(const QString filename){
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
   // Show original image on the left.
-  showImageLeft(img);
+  // showImageLeft(img);
   // Create a copy of the image.
-  Image *copy = new Image(*(img));
+  // Image *copy = new Image(*(img));
   // Transform copy.
-  copy->fourierTransform('d');
+
+  //copy->fourierTransform('d');
 
   // Show transformed copy on the right.
-  showImageRight(copy); 
-  delete(copy);
+  // showImageRight(copy); 
+  // delete(copy);
 }
 
 void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){
@@ -152,6 +153,13 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
   else if (transformationType == "sobel"){
     copy->sobelOperator();
   }
+  else if (transformationType == "genFourier"){
+    copy->fourierTransform("dft");
+  }
+  else {
+    std::cout << "Something went wrong while trying to show the image" << std::endl;
+    std::exit(0);
+  }
 
   showImageRight(copy);
   delete(copy);
@@ -160,16 +168,27 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
   delete(img);
 }
 
-void QtImageViewer::showImage(Image *img, char left, char right){
+void QtImageViewer::showImage(Image *img, std::string transformationType, std::string* values, int nrOfValues){
   std::cout<<"Transform and show Image! "<<std::endl;
-  //create a copy
   Image *copy = new Image(*(img));
-  img->Fig3_43(left);
-  showImageLeft(img);
+  if (transformationType == "fig3-43"){
+    img->Fig3_43(values[0][0]);
+    showImageLeft(img);
 
-  copy->Fig3_43(right);
+    copy->Fig3_43(values[1][0]);
+  }
+  else if (transformationType == "fourier"){
+    showImageLeft(img);
+    copy->fourierTransform(values[0]);
+  }
+  else {
+    std::cout << "Something went wrong while trying to show the image" << std::endl;
+    std::exit(0);
+  }
+  
   showImageRight(copy);
-  delete(copy); // copy not needed anymore
+  // copy not needed anymore
+  delete(copy);
 }
 
 void QtImageViewer::showImageLeft(const Image *img) {

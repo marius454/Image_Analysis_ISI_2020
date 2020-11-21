@@ -5,56 +5,55 @@
 #define IMAG 1
 
 
-void Image::fourierTransform(char imgLetter){
+void Image::fourierTransform(std::string visualizedStage){
   padImage(2, 2);
-  if (imgLetter == 'b') return;
-  if (imgLetter == 'c'){
+  if (visualizedStage == "padded") return;
+  if (visualizedStage == "shifted"){
     shiftForPeriodicity(true);
+    delete(_floatData);
     calculateHistogram();
     return;
   }
   shiftForPeriodicity(false);
-
-  // uint32 imgSize = _width * _height * _channels;
-  // _floatData = new float[imgSize];
-  // for (uint32 i = 0; i < imgSize; i++){
-  //   _floatData[i] = _data[i];
-  // }
-
-  if (imgLetter == 'd'){
+  if (visualizedStage == "dft"){
     DFT(true);
     calculateHistogram();
     return;
   }
   DFT(false);
-  if (imgLetter == 'e'){
-    IDFT(true);
+  IDFT(true);
+  shiftForPeriodicity(true);
+  if (visualizedStage == "idft"){
     calculateHistogram();
     return;
   }
-  IDFT(false);
+  padImage(0.5, 0.5);
+  if (visualizedStage == "recoveredOriginal"){
+    calculateHistogram();
+    return;
+  }
+  else {
+    std::cout << "Invalid input given to Fourier Transform method" << std::endl;
+    std::exit(0);
+  }
 }
 
-void Image::padImage(uint32 xMultiplier, uint32 yMultiplier){
+void Image::padImage(float xMultiplier, float yMultiplier){
   uint32 tempWidth = _width;
   uint32 tempHeight = _height;
 
-  if (xMultiplier < 1 || yMultiplier < 1){
-    std::cout << "Padding multipliers must be equal to or greater than 1";
-    std::exit(0);
-  }
-  else if (xMultiplier == 1 && yMultiplier == 1){
+  if (xMultiplier == 1 && yMultiplier == 1){
     return;
   }
   else if (xMultiplier == 1){
-    tempHeight *= yMultiplier;
+    tempHeight = (int)(tempHeight * yMultiplier);
   }
   else if (yMultiplier == 1){
-    tempWidth *= xMultiplier;
+    tempWidth = (int)(tempHeight * xMultiplier);
   }
   else{
-    tempWidth *= xMultiplier;
-    tempHeight *= yMultiplier;
+    tempWidth = (int)(tempHeight * xMultiplier);
+    tempHeight = (int)(tempHeight * yMultiplier);
   }
 
   unsigned char* paddedData = new unsigned char[tempWidth * tempHeight * _channels];
@@ -77,7 +76,6 @@ void Image::padImage(uint32 xMultiplier, uint32 yMultiplier){
 void Image::shiftForPeriodicity(bool visualise){
   if (!visualise) _floatData = new float[_width * _height * _channels];
   int shift;
-  int maxIntensity = pow(2, _bpp) - 1;
   for (uint32 y = 0; y < _height; y++)
     for (uint32 x = 0; x < _width; x++){
       if ((x+y) % 2 == 0) shift = 1;
@@ -86,7 +84,6 @@ void Image::shiftForPeriodicity(bool visualise){
       if (visualise) _data[y*_width + x] = _data[y*_width + x] * shift;
       else _floatData[y*_width + x] = _data[y*_width + x] * shift;
     }
-  if (visualise) delete(_floatData);
 }
 
 void Image::DFT(bool visualise){
@@ -134,18 +131,16 @@ void Image::IDFT(bool visualise){
   fftw_plan IDFT = fftw_plan_dft_2d (_width, _height, _complexData, out, FFTW_BACKWARD, FFTW_ESTIMATE);
   fftw_execute(IDFT);
   fftw_destroy_plan(IDFT);
-  // delete(_complexData);
+  delete(_complexData);
   fftw_cleanup();
 
   if (!visualise) _floatData = new float[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     if (visualise){
       _data[i] = static_cast<int>(out[i][REAL]);
-      // if (i < _width / 2){
-      //   std::cout << "(" << out[i][REAL] << ", " << out[i][IMAG] << ") ";
-      // }
     } 
     else _floatData[i] = out[i][REAL];
   }
   std::cout << std::endl;
 }
+

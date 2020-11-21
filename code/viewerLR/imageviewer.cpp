@@ -10,7 +10,7 @@
 #include <Eigen/Core>
 #include <math.h>
 
-void uiActions(int argc, char** argv, QtImageViewer* imv);
+void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv);
 void invalidUiCall(std::string func);
 std::map<std::string, int> getFuncMap();
 
@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   QtImageViewer* imv = new QtImageViewer();
   if(argc >= 2){
     std::string func = std::string(argv[1]);
-    if (argc == 2){
+    if (argc == 2 && func != "genFourier"){
       QString filename(argv[1]);
       std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;
       imv->showFile(filename);
@@ -27,9 +27,15 @@ int main(int argc, char** argv){
     else if (func == "negate" || func == "powerlaw" || func == "contrastlinear"
       || func == "contrastthreshold" || func == "contrastslice" || func == "normalize"
       || func == "blur" || func == "unsharpmask" || func == "laplacian"
-      || func == "sobel" || func == "fig3-43"){
-        uiActions(argc, argv, imv);
+      || func == "sobel" || func == "fig3-43" || func == "fourier"){
+        QString filename(argv[argc-1]);
+        Image* myImage = new Image(filename.toStdString());
+        uiActions(argc, argv, myImage, imv);
       }
+    else if (func == "genFourier"){
+      Image* myImage = new Image(256, 256);
+      uiActions(argc, argv, myImage, imv);
+    }
     else{
       std::cout << "No such command exists for this program" << std::endl;
       std::exit(0);
@@ -39,17 +45,32 @@ int main(int argc, char** argv){
   imv->resize(1000,600);
 
   int ret = app.exec();
-  
-  delete(imv);
 
+  delete(imv);
   return ret;
-  
 }
 
-void uiActions(int argc, char** argv, QtImageViewer* imv){
-  QString filename(argv[argc-1]);
-  Image* myImage = new Image(filename.toStdString());
+std::map<std::string, int> getFuncMap(){
+  std::map<std::string, int> funcMap;
+  funcMap["negate"] = 1;
+  funcMap["normalize"] = 1;
+  funcMap["sobel"] = 1;
+  funcMap["powerlaw"] = 2;
+  funcMap["contrastlinear"] = 3;
+  funcMap["contrastthreshold"] = 3;
+  funcMap["contrastslice"] = 3;
+  funcMap["blur"] = 4;
+  funcMap["unsharpmask"] = 4;
+  funcMap["laplacian"] = 5;
+  funcMap["fig3-43"] = 6;
+  funcMap["fourier"] = 7;
+  funcMap["genFourier"] = 8;
 
+  return funcMap;
+}
+
+void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
+  QString filename(argv[argc-1]);
   std::string func = std::string(argv[1]);
   std::map<std::string, int> funcMap = getFuncMap();
 
@@ -105,7 +126,24 @@ void uiActions(int argc, char** argv, QtImageViewer* imv){
       else invalidUiCall(func);
       break;
     case 6:
-      if (argc == 5) imv->showImage(myImage, argv[2][0], argv[3][0]);
+      if (argc == 5){
+        std::string* values = new std::string[2];
+        values[0] = std::string(argv[2]);
+        values[1] = std::string(argv[3]);
+        imv->showImage(myImage, func, values);
+      } 
+      else invalidUiCall(func);
+      break;
+    case 7:
+      if (argc == 4){
+        std::string* values = new std::string[1];
+        values[0] = std::string(argv[2]);
+        imv->showImage(myImage, func, values);
+      }
+      else invalidUiCall(func);
+      break;
+    case 8:
+      if (argc == 2) imv->showImage(myImage, func);
       else invalidUiCall(func);
       break;
     default: 
@@ -119,21 +157,4 @@ void uiActions(int argc, char** argv, QtImageViewer* imv){
 void invalidUiCall(std::string func){
   std::cout << "Invalid number of arguments for operation " << func << std::endl;
   std::exit(0);
-}
-
-std::map<std::string, int> getFuncMap(){
-  std::map<std::string, int> funcMap;
-  funcMap["negate"] = 1;
-  funcMap["normalize"] = 1;
-  funcMap["sobel"] = 1;
-  funcMap["powerlaw"] = 2;
-  funcMap["contrastlinear"] = 3;
-  funcMap["contrastthreshold"] = 3;
-  funcMap["contrastslice"] = 3;
-  funcMap["blur"] = 4;
-  funcMap["unsharpmask"] = 4;
-  funcMap["laplacian"] = 5;
-  funcMap["fig3-43"] = 6;
-
-  return funcMap;
 }

@@ -18,16 +18,11 @@ Image::Image(const Image &original){
   performCopy(original);
   calculateHistogram();
 }
-// Image::Image(unsigned int w, unsigned int h, float pixelUnit){
-//   _width = w;
-//   _height = h;
-//   _data = (unsigned char*)malloc( w*h );
-// }
-// Image::Image(unsigned int w, unsigned int h, BBox region){
-//   _width = w;
-//   _height = h;
-//   _data = (unsigned char*)malloc( w*h );
-// }
+Image::Image(uint32 width, uint32 height){
+  _width = width;
+  _height = height;
+  generateImage("Lines", 3.0f, 0.0f);
+}
 
 Image::~Image() {
   delete[] _data;
@@ -51,28 +46,18 @@ bool isTiffFile(std::string filename){
   filename.substr(filename.find_last_of(".") + 1) == "svs") {
     return true;
   }
-  else {
-    return false;
-  }
+  else return false;
 }
 
 bool isJpegFile(std::string filename){
-  if (filename.substr(filename.find_last_of(".") + 1) == "jpg") {
-    return true;
-  }
-  else {
-    return false;
-  }
+  if (filename.substr(filename.find_last_of(".") + 1) == "jpg") return true;
+  else return false;
 }
 
 bool Image::openFile(std::string filename, short directory){
   // Check file type by filename extensions
-  if(isTiffFile(filename)){
-    return loadTiff(filename, directory);
-  }
-  else if(isJpegFile(filename)){
-    return loadJpeg(filename);
-  }
+  if(isTiffFile(filename)) return loadTiff(filename, directory);
+  else if(isJpegFile(filename)) return loadJpeg(filename);
   return false;
 };
 bool Image::combineFiles(std::string filename1, std::string filename2, std::string filename3){

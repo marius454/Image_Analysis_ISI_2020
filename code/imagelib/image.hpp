@@ -12,6 +12,7 @@
 #include <chrono>
 #include <tiffio.h>
 #include <fftw3.h>
+#include <cmath>
 
 struct BBox{
   float maxX;
@@ -27,35 +28,45 @@ public:
 	Image(std::string filename, short directory);
 	Image(std::string filename1, std::string filename2, std::string filename3);
   Image(const Image& original);
+  Image(uint32 width, uint32 height);
 
 	virtual ~Image();
+
 	// File related
 	bool openFile(std::string filename, short directory);
 	bool combineFiles(std::string filename1, std::string filename2, std::string filename3);
+
   // Image transformations
 	bool manipulateImage(unsigned short n, Eigen::Matrix3f *changeMatrices, bool useNN = true);
   void scaleImage(std::string interpolationScheme, float scaleX, float scaleY);
   void rotateImage(std::string interpolationScheme, float degreeOfRotation);
   void shearImage(std::string interpolationScheme, float shearAmount);
   void presetTransformations(std::string interpolationScheme, uint8 transformationNumber);
+
 	// Intensity transformations
   void intensityNegate();
   void intensityPowerLaw(float gamma, bool isFloat = false);
   void contrastStretching(uint16 numberOfSlopeChangePoints, float* slopeChangeFractionPoints,
    float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
   void histogramNormalization();
+
   // Spacial filtering
   void imageBlurring(uint32 filterWidth);
   void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
   void sharpeningLaplacian(bool useN8 = false, bool getOnlyLaplacian = false);
   void sobelOperator();
   void Fig3_43(char imgLetter);
+
   // Fourier transform
-  void padImage(uint32 xMultiplier, uint32 yMultiplier);
-  void fourierTransform(char imgLetter);
-  // void DFT();
+  void padImage(float xMultiplier, float yMultiplier);
+  void fourierTransform(std::string visualizedStage);
+
+  // Generating images
+  void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
+
   // Image related
 	unsigned char* getImageData() const;
+
 	// Get attributes
 	unsigned long getWidth() const;
 	unsigned long getHeight() const;
@@ -65,6 +76,7 @@ public:
   unsigned long getSamplesPerPixel() const;
   unsigned long getBitsPerSample() const;
   std::vector<unsigned int> getHistogram() const;
+
 private:
 	unsigned long _width{0};
 	unsigned long _height{0};
@@ -82,24 +94,31 @@ private:
 	BBox _bbox;
   Eigen::Matrix3f I_W;
   Eigen::Matrix3f W_I;
+
 	// Tiff related
 	bool loadTiff(std::string filename, short directory);
 	bool loadCombinedTiff(std::string filename1, std::string filename2, std::string filename3);
 	// Jpeg related
 	bool loadJpeg(std::string filename);
+
   // Image transformation related
   void recalculateBBox(unsigned short n, Eigen::Matrix3f *changeMatrices);
   void setIntensities(unsigned short n, Eigen::Matrix3f *changeMatrices, bool userNN = true);
   unsigned char NN(Eigen::Vector3f indexVec);
   unsigned char bilinearInterpolation(Eigen::Vector3f indexVec);
   void performCopy(Image const & obj);
+
   // Intensity transformation related
   void calculateHistogram();
   void transformPixels();
+
   // Fourier transform related
   void shiftForPeriodicity(bool visualise);
   void DFT(bool visualise);
   void IDFT(bool visualise);
+
+  // Generating Images relates
+  void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
 };
 
 class Interval{
