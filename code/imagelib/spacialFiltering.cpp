@@ -6,8 +6,8 @@ float applyMask(uint32 filterWidth, unsigned char* imgData, uint32 imgWidth, uin
 
   for (int t = -a; t <= a; t++)
     for (int s = -a; s <= a; s++){
-      int fx = x+s;
-      int fy = y+t;
+      int fx = x-s;
+      int fy = y-t;
       if (fx > 0 && fy > 0 && fx < imgWidth && fy < imgHeight){
         maskProduct += W[ (t+a)*filterWidth + (s+a) ] * (int)imgData[ fy*imgWidth + fx ];
       }

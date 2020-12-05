@@ -1,10 +1,5 @@
 #include "image.hpp"
 
-// Define the real and imaginary parts of fftw_complex
-#define REAL 0
-#define IMAG 1
-
-
 void Image::fourierTransform(std::string visualizedStage){
   padImage(2, 2);
   if (visualizedStage == "padded") return;

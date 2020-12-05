@@ -1,5 +1,8 @@
 #ifndef SIMPLE_IMAGE_LIBRARY_HPP
 #define SIMPLE_IMAGE_LIBRARY_HPP
+// Define the real and imaginary parts of fftw_complex
+#define REAL 0
+#define IMAG 1
 
 #include <iostream>
 #include <string>
@@ -64,6 +67,9 @@ public:
   // Generating images
   void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
 
+  // Frequency filtering
+  void frequencyFilter(uint8 type, uint8 pass, uint32 D0, uint8 n = 2);
+
   // Image related
 	unsigned char* getImageData() const;
 
@@ -117,8 +123,13 @@ private:
   void DFT(bool visualise);
   void IDFT(bool visualise);
 
-  // Generating Images relates
+  // Generating Images related
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
+
+  // Frequency filtering related
+  float buildIdealFilterPixel(float* filterPixel, uint8 pass, uint32 D0), float D;
+  float buildButterworthFilterPixel(float* filterPixel, uint8 pass, uint32 D0, float D, uint8 n);
+  float buildGaussianFilterPixel(float* filterPixel, uint8 pass, uint32 D0, float D);
 };
 
 class Interval{
