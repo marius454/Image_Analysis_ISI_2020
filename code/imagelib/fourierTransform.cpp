@@ -99,23 +99,7 @@ void Image::DFT(bool visualise){
   fftw_cleanup();
 
   if (visualise){
-    uint16 L = pow(2, _bpp);
-    _floatData = new float[imgSize];
-    double max = std::numeric_limits<float>::min();
-    double min = std::numeric_limits<float>::min();
-
-    for (uint32 i = 0; i < imgSize; i++){
-      _floatData[i] = sqrt(pow(_complexData[i][REAL], 2) + pow(_complexData[i][IMAG], 2));
-      if (_floatData[i] < min) min = _floatData[i];
-      if (_floatData[i] > max) max = _floatData[i];
-    }
-    for (uint32 i = 0; i < imgSize; i++){
-      _floatData[i] = ((L-1)*(_floatData[i] - min)) / (max - min);
-    }
-    intensityPowerLaw(0.1, true);
-    for (uint32 i = 0; i < imgSize; i++){
-      _data[i] = static_cast<unsigned char>((int)round(_floatData[i]));
-    }
+    visualiseComplex(0.1);
   }
 }
 
@@ -139,3 +123,23 @@ void Image::IDFT(bool visualise){
   std::cout << std::endl;
 }
 
+void Image::visualiseComplex(float gamma){
+  uint32 imgSize = _width * _height * _channels;
+  uint16 L = pow(2, _bpp);
+  _floatData = new float[imgSize];
+  double max = std::numeric_limits<float>::min();
+  double min = std::numeric_limits<float>::min();
+
+  for (uint32 i = 0; i < imgSize; i++){
+    _floatData[i] = sqrt(pow(_complexData[i][REAL], 2) + pow(_complexData[i][IMAG], 2));
+    if (_floatData[i] < min) min = _floatData[i];
+    if (_floatData[i] > max) max = _floatData[i];
+  }
+  for (uint32 i = 0; i < imgSize; i++){
+    _floatData[i] = ((L-1)*(_floatData[i] - min)) / (max - min);
+  }
+  intensityPowerLaw(gamma, true);
+  for (uint32 i = 0; i < imgSize; i++){
+    _data[i] = static_cast<unsigned char>((int)round(_floatData[i]));
+  }
+}

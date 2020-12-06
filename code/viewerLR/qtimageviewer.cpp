@@ -113,7 +113,6 @@ void QtImageViewer::showImage(Image *img){
 
 void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){
   std::cout<<"Transform and show Image! "<<std::endl;
-  showImageLeft(img);
   Image *copy = new Image(*(img));
   if (transformationType == "negate"){
     copy->intensityNegate();
@@ -153,14 +152,29 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
   else if (transformationType == "sobel"){
     copy->sobelOperator();
   }
-  else if (transformationType == "genFourier"){
+  else if (transformationType == "genfourier"){
     copy->fourierTransform("dft");
+  }
+  else if (transformationType == "frequencyfilter"){
+    if (nrOfValues == 3){
+      img->frequencyFilter((int)values[1], (int)values[2], 1, (int)values[0], 2);
+      copy->frequencyFilter((int)values[1], (int)values[2], 2, (int)values[0], 2);
+    }
+    else if(nrOfValues == 4){
+      std::cout << values[0] << " " << (int)values[1] << " " << (int)values[2] << " " << (int)values[3] << std::endl;
+      copy->frequencyFilter((int)values[1], (int)values[2], (int)values[3], values[0], 2);
+    }
+    else {
+      std::cout << "invalid number of values for frequency filter" << std::endl;
+      std::exit(0);
+    }
   }
   else {
     std::cout << "Something went wrong while trying to show the image" << std::endl;
     std::exit(0);
   }
 
+  showImageLeft(img);
   showImageRight(copy);
   delete(copy);
 

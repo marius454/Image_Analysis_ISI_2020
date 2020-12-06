@@ -68,7 +68,7 @@ public:
   void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering
-  void frequencyFilter(uint8 type, uint8 pass, uint32 D0, uint8 n = 2);
+  void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n);
 
   // Image related
 	unsigned char* getImageData() const;
@@ -122,14 +122,15 @@ private:
   void shiftForPeriodicity(bool visualise);
   void DFT(bool visualise);
   void IDFT(bool visualise);
+  void visualiseComplex(float gamma);
 
   // Generating Images related
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering related
-  float buildIdealFilterPixel(float* filterPixel, uint8 pass, uint32 D0), float D;
-  float buildButterworthFilterPixel(float* filterPixel, uint8 pass, uint32 D0, float D, uint8 n);
-  float buildGaussianFilterPixel(float* filterPixel, uint8 pass, uint32 D0, float D);
+  float buildIdealFilterPixel(uint16 pass, uint32 D0, float D);
+  float buildButterworthFilterPixel(uint16 pass, uint32 D0, float D, uint16 n);
+  float buildGaussianFilterPixel(uint16 pass, uint32 D0, float D);
 };
 
 class Interval{

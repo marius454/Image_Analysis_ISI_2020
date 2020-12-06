@@ -26,5 +26,4 @@ void Image::generateLineImage(float alphaXMultiplier, float alphaYMultiplier){
                                   alphaYMultiplier * alphaY * static_cast<float>(y)));
       _data[y*_width + x] = static_cast<unsigned char>((int)i);
     }
-  std::cout << "good" << std::endl;
 }

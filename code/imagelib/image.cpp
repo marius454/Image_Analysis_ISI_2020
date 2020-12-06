@@ -76,4 +76,3 @@ unsigned long Image::getBPP() const { return _bpp;};
 unsigned long Image::getSamplesPerPixel() const { return _channels; };
 unsigned long Image::getBitsPerSample() const { return _bpp;};
 std::vector<unsigned int> Image::getHistogram() const { return _histogram; };
-

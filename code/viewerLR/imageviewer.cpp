@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   QtImageViewer* imv = new QtImageViewer();
   if(argc >= 2){
     std::string func = std::string(argv[1]);
-    if (argc == 2 && func != "genFourier"){
+    if (argc == 2 && func != "genfourier"){
       QString filename(argv[1]);
       std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;
       imv->showFile(filename);
@@ -27,12 +27,12 @@ int main(int argc, char** argv){
     else if (func == "negate" || func == "powerlaw" || func == "contrastlinear"
       || func == "contrastthreshold" || func == "contrastslice" || func == "normalize"
       || func == "blur" || func == "unsharpmask" || func == "laplacian"
-      || func == "sobel" || func == "fig3-43" || func == "fourier"){
+      || func == "sobel" || func == "fig3-43" || func == "fourier" || func == "frequencyfilter"){
         QString filename(argv[argc-1]);
         Image* myImage = new Image(filename.toStdString());
         uiActions(argc, argv, myImage, imv);
       }
-    else if (func == "genFourier"){
+    else if (func == "genfourier"){
       Image* myImage = new Image(256, 256);
       uiActions(argc, argv, myImage, imv);
     }
@@ -64,7 +64,8 @@ std::map<std::string, int> getFuncMap(){
   funcMap["laplacian"] = 5;
   funcMap["fig3-43"] = 6;
   funcMap["fourier"] = 7;
-  funcMap["genFourier"] = 8;
+  funcMap["genfourier"] = 8;
+  funcMap["frequencyfilter"] = 9;
 
   return funcMap;
 }
@@ -145,6 +146,16 @@ void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
     case 8:
       if (argc == 2) imv->showImage(myImage, func);
       else invalidUiCall(func);
+      break;
+    case 9:
+      if (argc == 6){
+        float* values = new float[3]{atof(argv[2]), atoi(argv[3]), atoi(argv[4])};
+        imv->showImage(myImage, func, values, 3);
+      }
+      else if (argc == 7){
+        float* values = new float[4]{atof(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5])};
+        imv->showImage(myImage, func, values, 4);
+      }
       break;
     default: 
       std::cout << "Invalid input";
