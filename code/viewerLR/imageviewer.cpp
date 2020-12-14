@@ -139,7 +139,13 @@ void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
       if (argc == 4){
         std::string* values = new std::string[1];
         values[0] = std::string(argv[2]);
-        imv->showImage(myImage, func, values);
+        imv->showImage(myImage, func, values, 1);
+      }
+      else if (argc == 5){
+        std::string* values = new std::string[2];
+        values[0] = std::string(argv[2]);
+        values[1] = std::string(argv[3]);
+        imv->showImage(myImage, func, values, 2);
       }
       else invalidUiCall(func);
       break;

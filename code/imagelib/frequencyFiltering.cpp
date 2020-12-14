@@ -21,24 +21,16 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
   uint32 D0 = radius;
   padImage(2, 2);
   shiftForPeriodicity(false);
-  DFT(false);
+  DFT();
   uint32 imgSize = _width * _height * _channels;
   float* filter = new float[imgSize];
 
-  double max = std::numeric_limits<float>::min();
-  double min = std::numeric_limits<float>::min();
+  float max = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::min();
 
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
-      double D = sqrt(pow((double)x - (double)_width/2, 2) + pow(y - (double)_height/2, 2));
-      // double D = sqrt(x*x + y*y);
-      if (x == 511 && y == 511){
-        // std::cout << x - (int)_width/2 << " " << y - (int)_height/2 << " " <<  D << std::endl;
-        // std::cout << pow(x - _width/2, 2) << " " << pow(y - _height/2, 2) << " " <<  D << std::endl;
-
-        std::cout << D << std::endl;
-        std::cout << exp(-1*((D*D) / 2*(D0*D0))) << std::endl;
-      }
+      double D = sqrt(pow((double)x - (double)_width/2, 2) + pow((double)y - (double)_height/2, 2));
       if (type == IDEAL){
         filter[y*_width + x] = buildIdealFilterPixel(pass, D0, D);
       }
@@ -56,8 +48,14 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
         _complexData[y*_width + x][REAL] *= filter[y*_width + x];
         _complexData[y*_width + x][IMAG] *= filter[y*_width + x];
       }
+      if (x == 511 && y == 511){
+        std::cout << _complexData[y*_width + x][REAL] << std::endl;
+        std::cout << _complexData[y*_width + x][IMAG] << std::endl;
+        std::cout << filter[y*_width + x] << std::endl;
+        // std::cout << D << std::endl;
+        // std::cout << exp(-((D*D) / (2*(D0*D0)))) << std::endl;
+      }
     }
-  // std::cout << "good" << std::endl;
   if (visualise == FILTER){
     uint16 L = pow(2, _bpp);
     float filterPixel;
@@ -76,7 +74,7 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
   }
 }
 
-float Image::buildIdealFilterPixel(uint16 pass, uint32 D0, float D){
+float Image::buildIdealFilterPixel(uint16 pass, float D0, float D){
   float filterPixel = 0;
   if (pass == LOW){
     if (D <= D0) filterPixel = 1;
@@ -88,7 +86,7 @@ float Image::buildIdealFilterPixel(uint16 pass, uint32 D0, float D){
   }
   return filterPixel;
 }
-float Image::buildButterworthFilterPixel(uint16 pass, uint32 D0, float D, uint16 n){
+float Image::buildButterworthFilterPixel(uint16 pass, float D0, float D, uint16 n){
   float filterPixel = 0;
   if (pass == LOW){
     filterPixel = 1 / (1 + pow(D/D0, 2*n));
@@ -98,14 +96,13 @@ float Image::buildButterworthFilterPixel(uint16 pass, uint32 D0, float D, uint16
   }
   return filterPixel;
 }
-float Image::buildGaussianFilterPixel(uint16 pass, uint32 D0, float D){
+float Image::buildGaussianFilterPixel(uint16 pass, float D0, float D){
   float filterPixel = 0;
   if (pass == LOW){
-    // std::cout << exp(pow(-1*D, 2) / 2*pow(D0, 2)) << std::endl;
-    filterPixel = exp(-1*((D*D) / 2*(D0*D0)));
+    filterPixel = exp(-((D*D) / (2.0f*(D0*D0))));
   }
   if (pass == HIGH){
-    filterPixel = 1 - exp(-1*((D*D) / 2*(D0*D0)));
+    filterPixel = 1 - exp(-((D*D) / (2.0f*(D0*D0))));
   }
   return filterPixel;
 }

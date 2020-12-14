@@ -192,8 +192,14 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, std::s
     copy->Fig3_43(values[1][0]);
   }
   else if (transformationType == "fourier"){
-    showImageLeft(img);
-    copy->fourierTransform(values[0]);
+    if (nrOfValues == 1){
+      showImageLeft(img);
+      copy->fourierTransform(values[0]);
+    }
+    else if (nrOfValues == 2){
+      showImageLeft(img);
+      copy->fourierTransform(values[0], std::stof(values[1]));
+    }
   }
   else {
     std::cout << "Something went wrong while trying to show the image" << std::endl;

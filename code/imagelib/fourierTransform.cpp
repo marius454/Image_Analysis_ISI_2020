@@ -1,6 +1,6 @@
 #include "image.hpp"
 
-void Image::fourierTransform(std::string visualizedStage){
+void Image::fourierTransform(std::string visualizedStage, float gamma){
   padImage(2, 2);
   if (visualizedStage == "padded") return;
   if (visualizedStage == "shifted"){
@@ -11,11 +11,12 @@ void Image::fourierTransform(std::string visualizedStage){
   }
   shiftForPeriodicity(false);
   if (visualizedStage == "dft"){
-    DFT(true);
+    DFT();
+    visualiseComplex(gamma);
     calculateHistogram();
     return;
   }
-  DFT(false);
+  DFT();
   IDFT(true);
   shiftForPeriodicity(true);
   if (visualizedStage == "idft"){
@@ -34,22 +35,8 @@ void Image::fourierTransform(std::string visualizedStage){
 }
 
 void Image::padImage(float xMultiplier, float yMultiplier){
-  uint32 tempWidth = _width;
-  uint32 tempHeight = _height;
-
-  if (xMultiplier == 1 && yMultiplier == 1){
-    return;
-  }
-  else if (xMultiplier == 1){
-    tempHeight = (int)(tempHeight * yMultiplier);
-  }
-  else if (yMultiplier == 1){
-    tempWidth = (int)(tempHeight * xMultiplier);
-  }
-  else{
-    tempWidth = (int)(tempHeight * xMultiplier);
-    tempHeight = (int)(tempHeight * yMultiplier);
-  }
+  uint32 tempWidth = (int)((float)_width * xMultiplier);
+  uint32 tempHeight = (int)((float)_height * yMultiplier);
 
   unsigned char* paddedData = new unsigned char[tempWidth * tempHeight * _channels];
   for (uint32 y = 0; y < tempHeight; y++)
@@ -81,14 +68,14 @@ void Image::shiftForPeriodicity(bool visualise){
     }
 }
 
-void Image::DFT(bool visualise){
+void Image::DFT(){
   uint32 imgSize = _width * _height * _channels;
   fftw_complex* in = new fftw_complex[imgSize];
   _complexData = new fftw_complex[imgSize];
 
   for (uint32 i = 0; i < imgSize; i++){
-    in[i][REAL] = _floatData[i] / imgSize;
-    in[i][IMAG] = 0;
+    in[i][REAL] = (float)_floatData[i];
+    in[i][IMAG] = 0.0;
   }
   delete(_floatData);
 
@@ -97,15 +84,15 @@ void Image::DFT(bool visualise){
   fftw_destroy_plan(DFT);
   delete(in);
   fftw_cleanup();
-
-  if (visualise){
-    visualiseComplex(0.1);
-  }
 }
 
 void Image::IDFT(bool visualise){
   uint32 imgSize = _width * _height * _channels;
   fftw_complex* out = new fftw_complex[imgSize];
+  uint16 L = pow(2, _bpp);
+
+  std::cout << _complexData[0][REAL] << std::endl;
+  std::cout << _complexData[0][IMAG] << std::endl;
 
   fftw_plan IDFT = fftw_plan_dft_2d (_width, _height, _complexData, out, FFTW_BACKWARD, FFTW_ESTIMATE);
   fftw_execute(IDFT);
@@ -116,7 +103,7 @@ void Image::IDFT(bool visualise){
   if (!visualise) _floatData = new float[imgSize];
   for (uint32 i = 0; i < imgSize; i++){
     if (visualise){
-      _data[i] = static_cast<int>(out[i][REAL]);
+      _data[i] = static_cast<int>(round(out[i][REAL] / (float)imgSize));
     } 
     else _floatData[i] = out[i][REAL];
   }

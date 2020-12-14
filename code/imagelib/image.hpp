@@ -62,7 +62,7 @@ public:
 
   // Fourier transform
   void padImage(float xMultiplier, float yMultiplier);
-  void fourierTransform(std::string visualizedStage);
+  void fourierTransform(std::string visualizedStage, float gamma = 0.1);
 
   // Generating images
   void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
@@ -120,7 +120,7 @@ private:
 
   // Fourier transform related
   void shiftForPeriodicity(bool visualise);
-  void DFT(bool visualise);
+  void DFT();
   void IDFT(bool visualise);
   void visualiseComplex(float gamma);
 
@@ -128,9 +128,9 @@ private:
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering related
-  float buildIdealFilterPixel(uint16 pass, uint32 D0, float D);
-  float buildButterworthFilterPixel(uint16 pass, uint32 D0, float D, uint16 n);
-  float buildGaussianFilterPixel(uint16 pass, uint32 D0, float D);
+  float buildIdealFilterPixel(uint16 pass, float D0, float D);
+  float buildButterworthFilterPixel(uint16 pass, float D0, float D, uint16 n);
+  float buildGaussianFilterPixel(uint16 pass, float D0, float D);
 };
 
 class Interval{
