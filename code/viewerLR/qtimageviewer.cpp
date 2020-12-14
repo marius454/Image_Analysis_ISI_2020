@@ -153,7 +153,12 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
     copy->sobelOperator();
   }
   else if (transformationType == "genfourier"){
-    copy->fourierTransform("dft");
+    if (nrOfValues == 0){
+      copy->fourierTransform("dft");
+    }
+    else if (nrOfValues == 1){
+      copy->fourierTransform("dft", values[0]);
+    }
   }
   else if (transformationType == "frequencyfilter"){
     if (nrOfValues == 3){

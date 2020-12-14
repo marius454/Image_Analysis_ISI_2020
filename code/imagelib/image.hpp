@@ -121,11 +121,12 @@ private:
   // Fourier transform related
   void shiftForPeriodicity(bool visualise);
   void DFT();
-  void IDFT(bool visualise);
+  void IDFT();
   void visualiseComplex(float gamma);
 
   // Generating Images related
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
+  void generateTestImage(float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering related
   float buildIdealFilterPixel(uint16 pass, float D0, float D);

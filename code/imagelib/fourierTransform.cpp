@@ -17,8 +17,8 @@ void Image::fourierTransform(std::string visualizedStage, float gamma){
     return;
   }
   DFT();
-  IDFT(true);
-  shiftForPeriodicity(true);
+  IDFT();
+  //shiftForPeriodicity(true);
   if (visualizedStage == "idft"){
     calculateHistogram();
     return;
@@ -56,15 +56,33 @@ void Image::padImage(float xMultiplier, float yMultiplier){
 }
 
 void Image::shiftForPeriodicity(bool visualise){
-  if (!visualise) _floatData = new float[_width * _height * _channels];
+  bool floatImage = false;
+  if (_floatData != nullptr) floatImage = true;
+  if (!visualise && !floatImage) _floatData = new float[_width * _height * _channels];
   int shift;
   for (uint32 y = 0; y < _height; y++)
     for (uint32 x = 0; x < _width; x++){
       if ((x+y) % 2 == 0) shift = 1;
       else shift = -1;
-
-      if (visualise) _data[y*_width + x] = _data[y*_width + x] * shift;
-      else _floatData[y*_width + x] = _data[y*_width + x] * shift;
+      
+      if (visualise){
+        if (!floatImage){
+          if (_data[y*_width + x] * shift < 0){
+            _data[y*_width + x] = 0;
+          }
+        }
+        else{
+          _data[y*_width + x] = static_cast<int>(round(_floatData[y*_width + x])) * shift;
+        }
+      }
+      else {
+        if (floatImage){
+          _floatData[y*_width + x] = _floatData[y*_width + x] * shift;
+        }
+        else{
+          _floatData[y*_width + x] = _data[y*_width + x] * shift;
+        }
+      }
     }
 }
 
@@ -86,13 +104,14 @@ void Image::DFT(){
   fftw_cleanup();
 }
 
-void Image::IDFT(bool visualise){
+void Image::IDFT(){
   uint32 imgSize = _width * _height * _channels;
   fftw_complex* out = new fftw_complex[imgSize];
   uint16 L = pow(2, _bpp);
 
-  std::cout << _complexData[0][REAL] << std::endl;
-  std::cout << _complexData[0][IMAG] << std::endl;
+  std::cout << std::endl;
+  std::cout << _complexData[120*_width + 120][REAL] << std::endl;
+  std::cout << std::endl;
 
   fftw_plan IDFT = fftw_plan_dft_2d (_width, _height, _complexData, out, FFTW_BACKWARD, FFTW_ESTIMATE);
   fftw_execute(IDFT);
@@ -100,13 +119,69 @@ void Image::IDFT(bool visualise){
   delete(_complexData);
   fftw_cleanup();
 
-  if (!visualise) _floatData = new float[imgSize];
+  float max = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
+
+  _floatData = new float[imgSize];
+  // for (uint32 i = 0; i < imgSize; i++){
+  //   // _data[i] = static_cast<int>(round(out[i][REAL] / (float)imgSize));
+  //   _floatData[i] = out[i][REAL]  / (float)imgSize;
+  //   if (_floatData[i] > max) max = _floatData[i];
+  //   if (_floatData[i] < min) min = _floatData[i];
+  //   if (_floatData[i] < -255 || _floatData[i] > 255){
+  //     std::cout << _floatData[i] << std::endl;
+  //   }
+  // }
+  // std::cout << std::endl;
+  // std::cout << min << std::endl;
+  // std::cout << max << std::endl;
+  // std::cout << std::endl;
+  // float recoveredPixel;
+  // float max2 = std::numeric_limits<float>::min();
+  // float min2 = std::numeric_limits<float>::max();
+  // for (uint32 i = 0; i < imgSize; i++){
+  //   if (round(_floatData[i]) != 0){
+  //     _floatData[i] = ((((L-1)+(L-1))*(_floatData[i] - min)) / (max - min)) - (L-1);
+  //   }
+  //   if (_floatData[i] > max2) max2 = _floatData[i];
+  //   if (_floatData[i] < min2) min2 = _floatData[i];
+  // }
+  // std::cout << std::endl;
+  // std::cout << min2 << std::endl;
+  // std::cout << max2 << std::endl;
+  // std::cout << std::endl;
+
+  // for (uint32 i = 0; i < imgSize; i++){
+  //   _floatData[i] = round(out[i][REAL] / (float)imgSize);
+  // }
+
   for (uint32 i = 0; i < imgSize; i++){
-    if (visualise){
-      _data[i] = static_cast<int>(round(out[i][REAL] / (float)imgSize));
-    } 
-    else _floatData[i] = out[i][REAL];
+    _floatData[i] = out[i][REAL]  / (float)imgSize;
   }
+  shiftForPeriodicity(false);
+  for (uint32 i = 0; i < imgSize; i++){
+    if (_floatData[i] > max) max = _floatData[i];
+    if (_floatData[i] < min) min = _floatData[i];
+  }
+  std::cout << std::endl;
+  std::cout << min << std::endl;
+  std::cout << max << std::endl;
+  std::cout << std::endl;
+  float recoveredPixel;
+  float max2 = std::numeric_limits<float>::min();
+  float min2 = std::numeric_limits<float>::max();
+  for (uint32 i = 0; i < imgSize; i++){
+    // if (round(_floatData[i]) != 0){
+    //   _floatData[i] = (((L-1)*(_floatData[i] - min)) / (max - min));
+    // }
+    _floatData[i] = (((L-1)*(_floatData[i] - min)) / (max - min));
+    _data[i] = static_cast<int>(round(_floatData[i]));
+    if (_floatData[i] > max2) max2 = _floatData[i];
+    if (_floatData[i] < min2) min2 = _floatData[i];
+  }
+  std::cout << std::endl;
+  std::cout << min2 << std::endl;
+  std::cout << max2 << std::endl;
   std::cout << std::endl;
 }
 
@@ -115,7 +190,7 @@ void Image::visualiseComplex(float gamma){
   uint16 L = pow(2, _bpp);
   _floatData = new float[imgSize];
   double max = std::numeric_limits<float>::min();
-  double min = std::numeric_limits<float>::min();
+  double min = std::numeric_limits<float>::max();
 
   for (uint32 i = 0; i < imgSize; i++){
     _floatData[i] = sqrt(pow(_complexData[i][REAL], 2) + pow(_complexData[i][IMAG], 2));

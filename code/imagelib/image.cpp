@@ -21,7 +21,7 @@ Image::Image(const Image &original){
 Image::Image(uint32 width, uint32 height){
   _width = width;
   _height = height;
-  generateImage("Lines", 3.0f, 0.0f);
+  // generateImage("Lines", 3.0f, 0.0f);
 }
 
 Image::~Image() {

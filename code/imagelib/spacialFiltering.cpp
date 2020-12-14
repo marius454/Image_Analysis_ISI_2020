@@ -58,7 +58,7 @@ void Image::sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k){
   }
 
   float max = std::numeric_limits<float>::min();
-  float min = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
   imageBlurring(blurringFilterWidth);
   for(uint32 i = 0; i < imgSize; i++){
     tempImg[i] = original[i] - _data[i];
@@ -94,7 +94,7 @@ void Image::sharpeningLaplacian(bool useN8, bool getOnlyLaplacian){
   float d2f;
 
   float max = std::numeric_limits<float>::min();
-  float min = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
 
   if (!useN8){
     int* W = new int[9]{0,1,0,1,-4,1,0,1,0};
@@ -147,7 +147,7 @@ void Image::sobelOperator(){
   int* Wy = new int[9]{-1,-2,-1,0,0,0,1,2,1};
 
   float max = std::numeric_limits<float>::min();
-  float min = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
 
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
@@ -234,7 +234,7 @@ void Image::Fig3_43(char imgLetter){
 
   unsigned char* f = new unsigned char[imgSize];
   float max = std::numeric_limits<float>::min();
-  float min = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
 
   for (uint32 i = 0; i < imgSize; i++){
     tempImg[i] = c[i] * e[i];
@@ -261,7 +261,7 @@ void Image::Fig3_43(char imgLetter){
 
   unsigned char* g = new unsigned char[imgSize];
   max = std::numeric_limits<float>::min();
-  min = std::numeric_limits<float>::min();
+  min = std::numeric_limits<float>::max();
 
   for (uint32 i = 0; i < imgSize; i++){
     tempImg[i] = a[i] + f[i];

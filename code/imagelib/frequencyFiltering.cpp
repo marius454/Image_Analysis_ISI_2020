@@ -26,7 +26,7 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
   float* filter = new float[imgSize];
 
   float max = std::numeric_limits<float>::min();
-  float min = std::numeric_limits<float>::min();
+  float min = std::numeric_limits<float>::max();
 
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
@@ -48,13 +48,6 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
         _complexData[y*_width + x][REAL] *= filter[y*_width + x];
         _complexData[y*_width + x][IMAG] *= filter[y*_width + x];
       }
-      if (x == 511 && y == 511){
-        std::cout << _complexData[y*_width + x][REAL] << std::endl;
-        std::cout << _complexData[y*_width + x][IMAG] << std::endl;
-        std::cout << filter[y*_width + x] << std::endl;
-        // std::cout << D << std::endl;
-        // std::cout << exp(-((D*D) / (2*(D0*D0)))) << std::endl;
-      }
     }
   if (visualise == FILTER){
     uint16 L = pow(2, _bpp);
@@ -68,8 +61,8 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
     visualiseComplex(0.15);
   }
   else if (visualise == FILTEREDIMAGE) {
-    IDFT(true);
-    shiftForPeriodicity(true);
+    IDFT();
+    //shiftForPeriodicity(true);
     padImage(0.5, 0.5);
   }
 }

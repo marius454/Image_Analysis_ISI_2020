@@ -32,8 +32,9 @@ int main(int argc, char** argv){
         Image* myImage = new Image(filename.toStdString());
         uiActions(argc, argv, myImage, imv);
       }
-    else if (func == "genfourier"){
-      Image* myImage = new Image(256, 256);
+    else if (func == "genfourier" && (argc == 7 || argc == 8)){
+      Image* myImage = new Image(atoi(argv[3]), atoi(argv[4]));
+      myImage->generateImage(std::string(argv[2]), atof(argv[5]), atof(argv[6]));
       uiActions(argc, argv, myImage, imv);
     }
     else{
@@ -150,7 +151,12 @@ void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
       else invalidUiCall(func);
       break;
     case 8:
-      if (argc == 2) imv->showImage(myImage, func);
+      if (argc == 7) imv->showImage(myImage, func);
+      else if (argc == 8){
+        float* values = new float[1];
+        values[0] = atof(argv[7]);
+        imv->showImage(myImage, func, values, 1);
+      }
       else invalidUiCall(func);
       break;
     case 9:
