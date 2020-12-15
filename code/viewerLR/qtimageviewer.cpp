@@ -174,13 +174,18 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
       std::exit(0);
     }
   }
+  else if (transformationType == "cutout") {
+    copy->getCutOut(values[0], values[1], values[2], values[3]);
+    std::cout << "good2" << std::endl;
+  }
   else {
     std::cout << "Something went wrong while trying to show the image" << std::endl;
     std::exit(0);
   }
-
+  
   showImageLeft(img);
   showImageRight(copy);
+  std::cout << "good3" << std::endl;
   delete(copy);
 
   update(); // For Qt to redraw with new image

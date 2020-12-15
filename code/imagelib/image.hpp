@@ -67,8 +67,9 @@ public:
   // Generating images
   void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
 
-  // Frequency filtering
+  // Frequency filtering and Noice removal
   void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n);
+  void getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
   // Image related
 	unsigned char* getImageData() const;
@@ -126,7 +127,9 @@ private:
 
   // Generating Images related
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
-  void generateTestImage(float alphaXMultiplier, float alphaYMultiplier);
+  void generateTest1Image(float alphaXMultiplier, float alphaYMultiplier);
+  void generateTest2Image(float alphaXMultiplier, float alphaYMultiplier);
+  void generateTest3Image(float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering related
   float buildIdealFilterPixel(uint16 pass, float D0, float D);

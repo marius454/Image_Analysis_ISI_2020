@@ -27,7 +27,8 @@ int main(int argc, char** argv){
     else if (func == "negate" || func == "powerlaw" || func == "contrastlinear"
       || func == "contrastthreshold" || func == "contrastslice" || func == "normalize"
       || func == "blur" || func == "unsharpmask" || func == "laplacian"
-      || func == "sobel" || func == "fig3-43" || func == "fourier" || func == "frequencyfilter"){
+      || func == "sobel" || func == "fig3-43" || func == "fourier" || func == "frequencyfilter"
+      || func == "cutout"){
         QString filename(argv[argc-1]);
         Image* myImage = new Image(filename.toStdString());
         uiActions(argc, argv, myImage, imv);
@@ -67,6 +68,7 @@ std::map<std::string, int> getFuncMap(){
   funcMap["fourier"] = 7;
   funcMap["genfourier"] = 8;
   funcMap["frequencyfilter"] = 9;
+  funcMap["cutout"] = 10;
 
   return funcMap;
 }
@@ -168,6 +170,14 @@ void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
         float* values = new float[4]{atof(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5])};
         imv->showImage(myImage, func, values, 4);
       }
+      else invalidUiCall(func);
+      break;
+    case 10:
+      if (argc == 7){
+        float* values = new float[4]{atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5])};
+        imv->showImage(myImage, func, values);
+      }
+      else invalidUiCall(func);
       break;
     default: 
       std::cout << "Invalid input";

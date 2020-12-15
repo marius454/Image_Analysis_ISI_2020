@@ -18,7 +18,7 @@ void Image::fourierTransform(std::string visualizedStage, float gamma){
   }
   DFT();
   IDFT();
-  //shiftForPeriodicity(true);
+  // shiftForPeriodicity(true);
   if (visualizedStage == "idft"){
     calculateHistogram();
     return;
@@ -123,33 +123,6 @@ void Image::IDFT(){
   float min = std::numeric_limits<float>::max();
 
   _floatData = new float[imgSize];
-  // for (uint32 i = 0; i < imgSize; i++){
-  //   // _data[i] = static_cast<int>(round(out[i][REAL] / (float)imgSize));
-  //   _floatData[i] = out[i][REAL]  / (float)imgSize;
-  //   if (_floatData[i] > max) max = _floatData[i];
-  //   if (_floatData[i] < min) min = _floatData[i];
-  //   if (_floatData[i] < -255 || _floatData[i] > 255){
-  //     std::cout << _floatData[i] << std::endl;
-  //   }
-  // }
-  // std::cout << std::endl;
-  // std::cout << min << std::endl;
-  // std::cout << max << std::endl;
-  // std::cout << std::endl;
-  // float recoveredPixel;
-  // float max2 = std::numeric_limits<float>::min();
-  // float min2 = std::numeric_limits<float>::max();
-  // for (uint32 i = 0; i < imgSize; i++){
-  //   if (round(_floatData[i]) != 0){
-  //     _floatData[i] = ((((L-1)+(L-1))*(_floatData[i] - min)) / (max - min)) - (L-1);
-  //   }
-  //   if (_floatData[i] > max2) max2 = _floatData[i];
-  //   if (_floatData[i] < min2) min2 = _floatData[i];
-  // }
-  // std::cout << std::endl;
-  // std::cout << min2 << std::endl;
-  // std::cout << max2 << std::endl;
-  // std::cout << std::endl;
 
   // for (uint32 i = 0; i < imgSize; i++){
   //   _floatData[i] = round(out[i][REAL] / (float)imgSize);
@@ -163,25 +136,12 @@ void Image::IDFT(){
     if (_floatData[i] > max) max = _floatData[i];
     if (_floatData[i] < min) min = _floatData[i];
   }
-  std::cout << std::endl;
-  std::cout << min << std::endl;
-  std::cout << max << std::endl;
-  std::cout << std::endl;
-  float recoveredPixel;
-  float max2 = std::numeric_limits<float>::min();
-  float min2 = std::numeric_limits<float>::max();
+  if (min > 0) min = 0;
+  if (max < L-1) max = L-1;
   for (uint32 i = 0; i < imgSize; i++){
-    // if (round(_floatData[i]) != 0){
-    //   _floatData[i] = (((L-1)*(_floatData[i] - min)) / (max - min));
-    // }
     _floatData[i] = (((L-1)*(_floatData[i] - min)) / (max - min));
     _data[i] = static_cast<int>(round(_floatData[i]));
-    if (_floatData[i] > max2) max2 = _floatData[i];
-    if (_floatData[i] < min2) min2 = _floatData[i];
   }
-  std::cout << std::endl;
-  std::cout << min2 << std::endl;
-  std::cout << max2 << std::endl;
   std::cout << std::endl;
 }
 

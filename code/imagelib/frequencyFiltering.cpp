@@ -15,7 +15,6 @@
 void validation (uint16 type, uint16 pass, uint16 visualise);
 
 void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n){
-  // std::cout << type << " " << pass << " " << visualise << " " << radius << std::endl;
   validation(type, pass, visualise);
 
   uint32 D0 = radius;
@@ -62,7 +61,7 @@ void Image::frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double r
   }
   else if (visualise == FILTEREDIMAGE) {
     IDFT();
-    //shiftForPeriodicity(true);
+    // shiftForPeriodicity(true);
     padImage(0.5, 0.5);
   }
 }
@@ -100,17 +99,47 @@ float Image::buildGaussianFilterPixel(uint16 pass, float D0, float D){
   return filterPixel;
 }
 
+void Image::getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY){
+  if (startX > _width || startY > _height || endX > _width || endY > _height){
+    std::cout << "given coordinates are out of image bounds" << std::endl;
+    std::exit(0);
+  }
+  if (startX > endX){
+    uint32 temp = startX;
+    startX = endX;
+    endX = temp;
+  }
+  if (startY > endY){
+    uint32 temp = startY;
+    startY = endY;
+    endY = temp;
+  }
+  uint32 tempWidth = endX - startX;
+  uint32 tempHeight = endY - startY;
+  unsigned char* tempData = new unsigned char[tempWidth * tempHeight];
+  for (uint32 y = startY; y < endY; y++)
+    for (uint32 x = startX; x < endX; x++){
+      tempData[(y - startY) * tempWidth + (x - startX)] = (int)_data[y*_width + x];
+    }
+  delete(_data);
+  _data = tempData;
+  _width = tempWidth;
+  _height = tempHeight;
+  calculateHistogram();
+  std::cout << "good1" << std::endl;
+}
+
 void validation (uint16 type, uint16 pass, uint16 visualise){
-  if (type < 0 || type > 2){
-    std::cout << "We only support Ideal (0), Butterworth (1) and Gaussian (2) types of filters" << std::endl;
-    std::exit(0);
-  }
-  if (pass < 0 || pass > 1){
-    std::cout << "We only support Low Pass (0) and High Pass (1) filters" << std::endl;
-    std::exit(0);
-  }
-  if (visualise < 0 || visualise > 2){
-    std::cout << "We only support Filter (0) and Filtered Faurier (1), and Filtered Image (2) visualizations" << std::endl;
-    std::exit(0);
-  }
+  // if (type < 0 || type > 2){
+  //   std::cout << "We only support Ideal (0), Butterworth (1) and Gaussian (2) types of filters" << std::endl;
+  //   std::exit(0);
+  // }
+  // if (pass < 0 || pass > 1){
+  //   std::cout << "We only support Low Pass (0) and High Pass (1) filters" << std::endl;
+  //   std::exit(0);
+  // }
+  // if (visualise < 0 || visualise > 2){
+  //   std::cout << "We only support Filter (0) and Filtered Faurier (1), and Filtered Image (2) visualizations" << std::endl;
+  //   std::exit(0);
+  // }
 }
