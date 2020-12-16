@@ -68,7 +68,7 @@ public:
   void generateImage(std::string imageType, float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering and Noice removal
-  void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n);
+  void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n, float W = 10, uint32** notchPoints = nullptr, uint16 nrOfNotches = 0);
   void getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
   // Image related
@@ -128,13 +128,14 @@ private:
   // Generating Images related
   void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
   void generateTest1Image(float alphaXMultiplier, float alphaYMultiplier);
-  void generateTest2Image(float alphaXMultiplier, float alphaYMultiplier);
-  void generateTest3Image(float alphaXMultiplier, float alphaYMultiplier);
 
   // Frequency filtering related
-  float buildIdealFilterPixel(uint16 pass, float D0, float D);
-  float buildButterworthFilterPixel(uint16 pass, float D0, float D, uint16 n);
-  float buildGaussianFilterPixel(uint16 pass, float D0, float D);
+  float buildIdealFilterPixel(uint16 pass, float D0, float D, float W);
+  float buildButterworthFilterPixel(uint16 pass, float D0, float D, uint16 n, float W);
+  float buildGaussianFilterPixel(uint16 pass, float D0, float D, float W);
+  float buildIdealNotchFilterPixel(uint16 pass, int x, int y, float D0, uint32** notchPoints, uint16 nrOfNotches);
+  float buildButterworthNotchFilterPixel(uint16 pass, int x, int y, float D0, uint16 n, uint32** notchPoints, uint16 nrOfNotches);
+  float buildGaussianNotchFilterPixel(uint16 pass, int x, int y, float D0, uint32** notchPoints, uint16 nrOfNotches);
 };
 
 class Interval{

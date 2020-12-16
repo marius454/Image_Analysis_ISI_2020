@@ -109,10 +109,6 @@ void Image::IDFT(){
   fftw_complex* out = new fftw_complex[imgSize];
   uint16 L = pow(2, _bpp);
 
-  std::cout << std::endl;
-  std::cout << _complexData[120*_width + 120][REAL] << std::endl;
-  std::cout << std::endl;
-
   fftw_plan IDFT = fftw_plan_dft_2d (_width, _height, _complexData, out, FFTW_BACKWARD, FFTW_ESTIMATE);
   fftw_execute(IDFT);
   fftw_destroy_plan(IDFT);
@@ -129,10 +125,13 @@ void Image::IDFT(){
   // }
 
   for (uint32 i = 0; i < imgSize; i++){
-    _floatData[i] = out[i][REAL]  / (float)imgSize;
+    _floatData[i] = out[i][REAL] / (float)imgSize;
   }
   shiftForPeriodicity(false);
   for (uint32 i = 0; i < imgSize; i++){
+    if (_floatData[i] < -1){
+      _floatData[i] = 0;
+    }
     if (_floatData[i] > max) max = _floatData[i];
     if (_floatData[i] < min) min = _floatData[i];
   }

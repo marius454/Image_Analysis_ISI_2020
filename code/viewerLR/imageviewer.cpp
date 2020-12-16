@@ -170,6 +170,21 @@ void uiActions(int argc, char** argv, Image* myImage, QtImageViewer* imv){
         float* values = new float[4]{atof(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5])};
         imv->showImage(myImage, func, values, 4);
       }
+      else if (argc == 8){
+        float* values = new float[5]{atof(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6])};
+        imv->showImage(myImage, func, values, 5);
+      }
+      else if (argc > 8 && (argc - 7) % 2 == 0){
+        float* values = new float[4];
+        values[0] = atof(argv[2]);
+        values[1] = atoi(argv[3]);
+        values[2] = atoi(argv[4]);
+        values[3] = atoi(argv[5]);
+        for (int i = 4; i < argc - 1; i ++){
+          values[i] = atoi(argv[i + 2]);
+        }
+        imv->showImage(myImage, func, values, argc-3);
+      }
       else invalidUiCall(func);
       break;
     case 10:

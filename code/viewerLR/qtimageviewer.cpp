@@ -166,8 +166,19 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
       copy->frequencyFilter((int)values[1], (int)values[2], 2, (int)values[0], 2);
     }
     else if(nrOfValues == 4){
-      std::cout << values[0] << " " << (int)values[1] << " " << (int)values[2] << " " << (int)values[3] << std::endl;
       copy->frequencyFilter((int)values[1], (int)values[2], (int)values[3], values[0], 2);
+    }
+    else if (nrOfValues == 5){
+      copy->frequencyFilter((int)values[1], (int)values[2], (int)values[3], values[0], 2, values[4]);
+    }
+    else if (nrOfValues > 5){
+      uint16 nrOfNotches = (nrOfValues - 4) / 2;
+      uint32** notchPoints = new uint32*[nrOfNotches];
+      uint16 j = 4;
+      for(int i = 0; i < nrOfNotches; ++i){
+        notchPoints[i] = new uint32[2]{(int)values[j], (int)values[j+1]};
+      }
+      copy->frequencyFilter((int)values[1], (int)values[2], (int)values[3], values[0], 2, 0, notchPoints, nrOfNotches);
     }
     else {
       std::cout << "invalid number of values for frequency filter" << std::endl;
@@ -176,16 +187,14 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
   }
   else if (transformationType == "cutout") {
     copy->getCutOut(values[0], values[1], values[2], values[3]);
-    std::cout << "good2" << std::endl;
   }
   else {
     std::cout << "Something went wrong while trying to show the image" << std::endl;
     std::exit(0);
   }
-  
+
   showImageLeft(img);
   showImageRight(copy);
-  std::cout << "good3" << std::endl;
   delete(copy);
 
   update(); // For Qt to redraw with new image
