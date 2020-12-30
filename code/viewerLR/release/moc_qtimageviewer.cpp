@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_QtImageViewer_t {
-    QByteArrayData data[18];
-    char stringdata0[179];
+    QByteArrayData data[21];
+    char stringdata0[218];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -47,16 +47,20 @@ QT_MOC_LITERAL(12, 110, 12), // "std::string*"
 QT_MOC_LITERAL(13, 123, 13), // "showImageLeft"
 QT_MOC_LITERAL(14, 137, 12), // "const Image*"
 QT_MOC_LITERAL(15, 150, 14), // "showImageRight"
-QT_MOC_LITERAL(16, 165, 8), // "openFile"
-QT_MOC_LITERAL(17, 174, 4) // "quit"
+QT_MOC_LITERAL(16, 165, 17), // "showCombinedImage"
+QT_MOC_LITERAL(17, 183, 9), // "imageLeft"
+QT_MOC_LITERAL(18, 193, 10), // "imageRight"
+QT_MOC_LITERAL(19, 204, 8), // "openFile"
+QT_MOC_LITERAL(20, 213, 4) // "quit"
 
     },
     "QtImageViewer\0showFile\0\0filename\0"
     "showImage\0Image*\0img\0std::string\0"
     "transformationType\0float*\0values\0"
     "nrOfValues\0std::string*\0showImageLeft\0"
-    "const Image*\0showImageRight\0openFile\0"
-    "quit"
+    "const Image*\0showImageRight\0"
+    "showCombinedImage\0imageLeft\0imageRight\0"
+    "openFile\0quit"
 };
 #undef QT_MOC_LITERAL
 
@@ -66,7 +70,7 @@ static const uint qt_meta_data_QtImageViewer[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -74,17 +78,19 @@ static const uint qt_meta_data_QtImageViewer[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x0a /* Public */,
-       4,    1,   72,    2, 0x0a /* Public */,
-       4,    4,   75,    2, 0x0a /* Public */,
-       4,    3,   84,    2, 0x2a /* Public | MethodCloned */,
-       4,    2,   91,    2, 0x2a /* Public | MethodCloned */,
-       4,    4,   96,    2, 0x0a /* Public */,
-       4,    3,  105,    2, 0x2a /* Public | MethodCloned */,
-      13,    1,  112,    2, 0x0a /* Public */,
-      15,    1,  115,    2, 0x0a /* Public */,
-      16,    0,  118,    2, 0x0a /* Public */,
-      17,    0,  119,    2, 0x0a /* Public */,
+       1,    1,   79,    2, 0x0a /* Public */,
+       4,    1,   82,    2, 0x0a /* Public */,
+       4,    4,   85,    2, 0x0a /* Public */,
+       4,    3,   94,    2, 0x2a /* Public | MethodCloned */,
+       4,    2,  101,    2, 0x2a /* Public | MethodCloned */,
+       4,    4,  106,    2, 0x0a /* Public */,
+       4,    3,  115,    2, 0x2a /* Public | MethodCloned */,
+      13,    1,  122,    2, 0x0a /* Public */,
+      15,    1,  125,    2, 0x0a /* Public */,
+      16,    1,  128,    2, 0x0a /* Public */,
+      16,    2,  131,    2, 0x0a /* Public */,
+      19,    0,  136,    2, 0x0a /* Public */,
+      20,    0,  137,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QString,    3,
@@ -96,6 +102,8 @@ static const uint qt_meta_data_QtImageViewer[] = {
     QMetaType::Void, 0x80000000 | 5, 0x80000000 | 7, 0x80000000 | 12,    6,    8,   10,
     QMetaType::Void, 0x80000000 | 14,    6,
     QMetaType::Void, 0x80000000 | 14,    6,
+    QMetaType::Void, 0x80000000 | 5,    6,
+    QMetaType::Void, 0x80000000 | 5, 0x80000000 | 5,   17,   18,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -117,8 +125,10 @@ void QtImageViewer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         case 6: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< std::string(*)>(_a[2])),(*reinterpret_cast< std::string*(*)>(_a[3]))); break;
         case 7: _t->showImageLeft((*reinterpret_cast< const Image*(*)>(_a[1]))); break;
         case 8: _t->showImageRight((*reinterpret_cast< const Image*(*)>(_a[1]))); break;
-        case 9: _t->openFile(); break;
-        case 10: _t->quit(); break;
+        case 9: _t->showCombinedImage((*reinterpret_cast< Image*(*)>(_a[1]))); break;
+        case 10: _t->showCombinedImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< Image*(*)>(_a[2]))); break;
+        case 11: _t->openFile(); break;
+        case 12: _t->quit(); break;
         default: ;
         }
     }
@@ -153,13 +163,13 @@ int QtImageViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 13)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 13;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 13)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 13;
     }
     return _id;
 }

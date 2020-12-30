@@ -4,6 +4,8 @@
 // See http://www.libtiff.org/ for use
 // and https://www.awaresystems.be/imaging/tiff.html for tags
 
+unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, unsigned char* img3Data, uint32 imageWidth, uint32 imageLength);
+
 bool readTiffMetaData(TIFF *tiff, short directory) {
   TIFFSetDirectory(tiff, directory); // NB!
   TIFFPrintDirectory(tiff, stdout, TIFFPRINT_NONE);
@@ -35,7 +37,7 @@ unsigned char* loadTiffTiled(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
           for (uint32 tx = 0; tx < tileWidth * 3; tx += 3){
             uint32 imgx = x*3+tx;
             uint32 imgy = y+ty;
-            if (imgy > (imageLength)*3+1 || imgx > (imageWidth)*3+1){
+            if (imgy > (imageLength)*3 || imgx > (imageWidth)*3){
               break;
             }
 
@@ -81,47 +83,6 @@ unsigned char* loadTiffStrip(TIFF* tiff, uint32 imageWidth, uint32 imageLength, 
   return imgData;
 }
 
-unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, unsigned char* img3Data, uint32 imageWidth, uint32 imageLength){
-  uint32 imgSize;
-  unsigned char* imgData = (unsigned char*) malloc(imageWidth * imageLength * 3);
-  imgSize = imageWidth * imageLength;
-
-  for (uint32 i = 0; i < imgSize; i ++){
-    imgData[i*3] = img1Data[i];
-    imgData[i*3 + 1] = img2Data[i];
-    imgData[i*3 + 2] = img3Data[i];
-  }
-
-  TIFF *output_image;
-  if((output_image = TIFFOpen("../../data/week1/combined_image.tif", "w")) == NULL){
-    std::cerr << "Unable to write tif file: " << "combined_image.tif" << std::endl;
-  }
-
-  TIFFSetField(output_image, TIFFTAG_IMAGEWIDTH, imageWidth);
-  TIFFSetField(output_image, TIFFTAG_IMAGELENGTH, imageLength);
-  TIFFSetField(output_image, TIFFTAG_SAMPLESPERPIXEL, 3);
-  TIFFSetField(output_image, TIFFTAG_BITSPERSAMPLE, 8);
-  TIFFSetField(output_image, TIFFTAG_ROWSPERSTRIP, imageLength);
-  TIFFSetField(output_image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-  TIFFSetField(output_image, TIFFTAG_COMPRESSION, COMPRESSION_JPEG);
-  TIFFSetField(output_image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-
-  // Write the information to the file
-  tsize_t image_s;
-  if(image_s = TIFFWriteEncodedStrip(output_image, 0, imgData, imageWidth * imageLength * 3) == -1)
-  {
-    std::cerr << "Unable to write tif file: " << "image.tif" << std::endl;
-  }
-  else
-  {
-    std::cout << "Image is saved! size is : " << image_s << std::endl;
-  }
-
-  TIFFWriteDirectory(output_image);
-  TIFFClose(output_image);
-
-  return imgData;
-}
 
 bool Image::loadTiff(std::string filename, short directory){
   uint32 imageWidth, imageLength;
@@ -197,4 +158,46 @@ bool Image::loadCombinedTiff(std::string filename1, std::string filename2, std::
   _data = combineTiff(img1Data, img2Data, img3Data, imageWidth, imageLength);
 
   return true;
+}
+
+unsigned char* combineTiff(unsigned char* img1Data, unsigned char* img2Data, unsigned char* img3Data, uint32 imageWidth, uint32 imageLength){
+  uint32 imgSize;
+  unsigned char* imgData = (unsigned char*) malloc(imageWidth * imageLength * 3);
+  imgSize = imageWidth * imageLength;
+
+  for (uint32 i = 0; i < imgSize; i ++){
+    imgData[i*3] = img1Data[i];
+    imgData[i*3 + 1] = img2Data[i];
+    imgData[i*3 + 2] = img3Data[i];
+  }
+
+  // TIFF *output_image;
+  // if((output_image = TIFFOpen("../../data/week1/combined_image.tif", "w")) == NULL){
+  //   std::cerr << "Unable to write tif file: " << "combined_image.tif" << std::endl;
+  // }
+
+  // TIFFSetField(output_image, TIFFTAG_IMAGEWIDTH, imageWidth);
+  // TIFFSetField(output_image, TIFFTAG_IMAGELENGTH, imageLength);
+  // TIFFSetField(output_image, TIFFTAG_SAMPLESPERPIXEL, 3);
+  // TIFFSetField(output_image, TIFFTAG_BITSPERSAMPLE, 8);
+  // TIFFSetField(output_image, TIFFTAG_ROWSPERSTRIP, imageLength);
+  // TIFFSetField(output_image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  // TIFFSetField(output_image, TIFFTAG_COMPRESSION, COMPRESSION_JPEG);
+  // TIFFSetField(output_image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+
+  // // Write the information to the file
+  // tsize_t image_s;
+  // if(image_s = TIFFWriteEncodedStrip(output_image, 0, imgData, imageWidth * imageLength * 3) == -1)
+  // {
+  //   std::cerr << "Unable to write tif file: " << "image.tif" << std::endl;
+  // }
+  // else
+  // {
+  //   std::cout << "Image is saved! size is : " << image_s << std::endl;
+  // }
+
+  // TIFFWriteDirectory(output_image);
+  // TIFFClose(output_image);
+
+  return imgData;
 }

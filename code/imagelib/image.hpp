@@ -71,6 +71,16 @@ public:
   void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n, float W = 10, uint32** notchPoints = nullptr, uint16 nrOfNotches = 0);
   void getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
+  // Image Segmentation/Mathematical Morphology
+  void createFISHreport(uint32 SEwidth, uint32 threshholdT, uint32 backgroundX, uint32 backgroundY);
+  void threshold(uint8 changePoint);
+  void calculatedThreshold(uint8 changePoint);
+  void squareErosion(uint16 squareWidth);
+  void squareDilation(uint16 squareWidth);
+  void findNeighbourhood(uint32 x, uint32 y, uint8 startIntensity, uint8 endIntensity);
+  void fillHoles();
+  uint16 findCells();
+
   // Image related
 	unsigned char* getImageData() const;
 
@@ -136,6 +146,9 @@ private:
   float buildIdealNotchFilterPixel(uint16 pass, int x, int y, float D0, uint32** notchPoints, uint16 nrOfNotches);
   float buildButterworthNotchFilterPixel(uint16 pass, int x, int y, float D0, uint16 n, uint32** notchPoints, uint16 nrOfNotches);
   float buildGaussianNotchFilterPixel(uint16 pass, int x, int y, float D0, uint32** notchPoints, uint16 nrOfNotches);
+
+  // Segmentation related
+  void getNeighbours(uint32 x, uint32 y, uint8 intensity, bool *visitedPixels);
 };
 
 class Interval{

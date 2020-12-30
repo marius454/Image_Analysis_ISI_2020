@@ -98,17 +98,42 @@ void QtImageViewer::showFile(const QString filename){
 
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
-  // Show original image on the left.
-  // showImageLeft(img);
-  // Create a copy of the image.
-  // Image *copy = new Image(*(img));
-  // Transform copy.
+  showImageLeft(img);
 
-  //copy->fourierTransform('d');
+  // Create a copy of the image.
+  Image *copy = new Image(*(img));
+
+  // Transform copy.
+  // copy->threshold(20);
+  // // copy->calculatedThreshold(20);
+  // copy->squareErosion(5);
+  // copy->squareDilation(5);
+  // copy->fillHoles(0, 0);
+  copy->createFISHreport(20, 5, 0, 0);
+
+  
 
   // Show transformed copy on the right.
-  // showImageRight(copy); 
-  // delete(copy);
+  showImageRight(copy); 
+  delete(copy);
+}
+
+void QtImageViewer::showCombinedImage(Image *img){
+  std::cout << "Showing combined image" << std::endl;
+  showImageLeft(img);
+  showImageRight(img);
+  
+  update();
+  delete(img);
+}
+void QtImageViewer::showCombinedImage(Image *imageLeft, Image *imageRight){
+  std::cout << "Showing combined image" << std::endl;
+  showImageLeft(imageLeft);
+  showImageRight(imageRight);
+
+  update();
+  delete(imageLeft);
+  delete(imageRight);
 }
 
 void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){
@@ -236,8 +261,8 @@ void QtImageViewer::showImageLeft(const Image *img) {
 
   if(img->getSamplesPerPixel() == 3){
     format = QImage::Format_RGB888;
-    std::cout<<"Sorry, only dealing with grayscale images for now"<<std::endl;
-    close();
+    // std::cout << "Sorry, only dealing with grayscale images for now" << std::endl;
+    // std::exit(0);
   }
   else if (img->getSamplesPerPixel() == 1)
     format = QImage::Format_Grayscale8;
@@ -299,8 +324,8 @@ void QtImageViewer::showImageRight(const Image *img) {
 
   if(img->getSamplesPerPixel() == 3){
     format = QImage::Format_RGB888;
-    std::cout<<"Sorry, only dealing with grayscale images for now"<<std::endl;
-    close();
+    // std::cout << "Sorry, only dealing with grayscale images for now" << std::endl;
+    // std::exit(0);
   }
   else if (img->getSamplesPerPixel() == 1)
     format = QImage::Format_Grayscale8;

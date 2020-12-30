@@ -60,6 +60,19 @@ int main(int argc, char** argv){
   return ret;
 }
 
+std::map<std::string, int> getFuncMap(){
+  std::map<std::string, int> funcMap;
+  funcMap["scale"] = 1;
+  funcMap["rotate"] = 2;
+  funcMap["shear"] = 3;
+  funcMap["transform1"] = 4;
+  funcMap["transform2"] = 5;
+  funcMap["transform3"] = 6;
+
+  return funcMap;
+}
+
+
 Image* uiActions(int argc, char** argv){
   QString filename(argv[argc-1]);
   Image* myImage = new Image(filename.toStdString());
@@ -115,48 +128,3 @@ void invalidUiCall(std::string func){
   std::cout << "Invalid number of arguments for operation " << func << std::endl;
   std::exit(0);
 }
-
-std::map<std::string, int> getFuncMap(){
-  std::map<std::string, int> funcMap;
-  funcMap["scale"] = 1;
-  funcMap["rotate"] = 2;
-  funcMap["shear"] = 3;
-  funcMap["transform1"] = 4;
-  funcMap["transform2"] = 5;
-  funcMap["transform3"] = 6;
-
-  return funcMap;
-}
-
-
-
-// else if (argc == 3 && std::string(argv[1]) == "change"){
-    //   QString filename(argv[2]);
-    //   Image* myImage = new Image(filename.toStdString(), 0);
-
-    //   // unsigned short n = 2;
-    //   // Eigen::Matrix3f m;
-    //   // m.setIdentity();
-    //   // m(0,0) = 10.0f;
-    //   // m(1,1) = 10.0f;
-    //   // Eigen::Matrix3f m1;
-    //   // m1.setIdentity();
-    //   // m1(0,0) = 0.866f;
-    //   // m1(1,1) = 0.866f;
-    //   // m1(1,0) = -0.5f;
-    //   // m1(0,1) = 0.5f;
-    //   // Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
-    //   // ms[0] = m;
-    //   // ms[1] = m1;
-
-    //   unsigned short n = 1;
-    //   Eigen::Matrix3f m;
-    //   m.setIdentity();
-    //   m(0,0) = 2.0f;
-    //   m(1,1) = 2.0f;
-    //   Eigen::Matrix3f* ms = new Eigen::Matrix3f[n];
-    //   ms[0] = m;
-
-    //   myImage->manipulateImage(n, ms);
-    //   imv->showFile(myImage);
-    // }

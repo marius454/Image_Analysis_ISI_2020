@@ -19,12 +19,7 @@ int main(int argc, char** argv){
   QtImageViewer* imv = new QtImageViewer();
   if(argc >= 2){
     std::string func = std::string(argv[1]);
-    if (argc == 2 && func != "genfourier"){
-      QString filename(argv[1]);
-      std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;
-      imv->showFile(filename);
-    }
-    else if (func == "negate" || func == "powerlaw" || func == "contrastlinear"
+    if (func == "negate" || func == "powerlaw" || func == "contrastlinear"
       || func == "contrastthreshold" || func == "contrastslice" || func == "normalize"
       || func == "blur" || func == "unsharpmask" || func == "laplacian"
       || func == "sobel" || func == "fig3-43" || func == "fourier" || func == "frequencyfilter"
@@ -37,6 +32,33 @@ int main(int argc, char** argv){
       Image* myImage = new Image(atoi(argv[3]), atoi(argv[4]));
       myImage->generateImage(std::string(argv[2]), atof(argv[5]), atof(argv[6]));
       uiActions(argc, argv, myImage, imv);
+    }
+    else if (func == "combine"){
+      if (argc == 5){
+        std::cout << "Combining: " << argv[2] << " " << argv[3] << " " << argv[4] << std::endl;
+        Image* myImage = new Image(argv[2], argv[3], argv[4]);
+        imv->showCombinedImage(myImage);
+      }
+      else if (argc == 6){
+        std::cout << "Combining: " << argv[2] << " " << argv[3] << " " << argv[4] << std::endl;
+        Image* imageLeft = new Image(argv[2], argv[3], argv[4]);
+        int nrImageRight = atoi(argv[5]);
+        if (nrImageRight >= 1 && nrImageRight <= 3){
+          QString filename(argv[nrImageRight + 1]);
+          Image* imageRight = new Image(filename.toStdString());;
+          imv->showCombinedImage(imageLeft, imageRight);
+        }
+        else {
+          std::cout << "The number of the image to show on the right must be between 1 and 3" << std::endl;
+          std::exit(0);
+        }
+      }
+      else invalidUiCall(func);
+    }
+    else if (argc == 2){
+      QString filename(argv[1]);
+      std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;
+      imv->showFile(filename);
     }
     else{
       std::cout << "No such command exists for this program" << std::endl;
