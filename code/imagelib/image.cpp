@@ -67,6 +67,30 @@ bool Image::combineFiles(std::string filename1, std::string filename2, std::stri
   return false;
 }
 
+void Image::splitChannels(char showChannel){
+  if (_channels == 3){
+    uint32 imgSize = _width * _height * _channels;
+    _Rdata = new unsigned char[imgSize / _channels];
+    _Gdata = new unsigned char[imgSize / _channels];
+    _Bdata = new unsigned char[imgSize / _channels];
+    for (uint32 i = 0; i < imgSize; i += _channels){
+      _Rdata[i / _channels] = _data[i];
+      _Gdata[i / _channels] = _data[i+1];
+      _Bdata[i / _channels] = _data[i+2];
+    }
+
+    imgSize = imgSize / _channels;
+    _channels = 1;
+    
+    delete(_data);
+    _data = new unsigned char[imgSize];
+    if (showChannel == 'R') for (uint32 i = 0; i < imgSize; i++) _data[i] = _Rdata[i];
+    else if (showChannel == 'G') for (uint32 i = 0; i < imgSize; i++) _data[i] = _Gdata[i];
+    else if (showChannel == 'B') for (uint32 i = 0; i < imgSize; i++) _data[i] = _Bdata[i];
+    else for (uint32 i = 0; i < imgSize; i++) _data[i] = (_Rdata[i] + _Gdata[i] + _Bdata[i]) / 3;
+  }
+}
+
 unsigned char* Image::getImageData() const { return _data; };
 unsigned long Image::getWidth() const {return _width;};
 unsigned long Image::getHeight() const { return _height;};

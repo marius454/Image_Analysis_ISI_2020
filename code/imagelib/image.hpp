@@ -72,17 +72,20 @@ public:
   void getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
   // Image Segmentation/Mathematical Morphology
-  void createFISHreport(uint32 SEwidth, uint32 threshholdT, uint32 backgroundX, uint32 backgroundY);
-  void threshold(uint8 changePoint);
-  void calculatedThreshold(uint8 changePoint);
+  void createFISHreport(uint16 visualizedStep);
+  void threshold(uint8 changePoint, unsigned char *data);
+  void calculatedThreshold(uint8 changePoint, unsigned char *data);
   void squareErosion(uint16 squareWidth);
   void squareDilation(uint16 squareWidth);
   void findNeighbourhood(uint32 x, uint32 y, uint8 startIntensity, uint8 endIntensity);
   void fillHoles();
+  void getBoudaries();
   uint16 findCells();
+  void assignCells(uint16 cellNr);
 
   // Image related
 	unsigned char* getImageData() const;
+  void splitChannels(char showChannel);
 
 	// Get attributes
 	unsigned long getWidth() const;
@@ -105,6 +108,9 @@ private:
 
   // data in different formats
 	unsigned char* _data{nullptr};
+  unsigned char* _Rdata{nullptr};
+  unsigned char* _Gdata{nullptr};
+  unsigned char* _Bdata{nullptr};
   fftw_complex* _complexData{nullptr};
   float* _floatData{nullptr};
 

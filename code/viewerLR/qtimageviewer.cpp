@@ -104,14 +104,7 @@ void QtImageViewer::showImage(Image *img){
   Image *copy = new Image(*(img));
 
   // Transform copy.
-  // copy->threshold(20);
-  // // copy->calculatedThreshold(20);
-  // copy->squareErosion(5);
-  // copy->squareDilation(5);
-  // copy->fillHoles(0, 0);
-  copy->createFISHreport(20, 5, 0, 0);
-
-  
+  copy->createFISHreport(0);
 
   // Show transformed copy on the right.
   showImageRight(copy); 
@@ -120,8 +113,15 @@ void QtImageViewer::showImage(Image *img){
 
 void QtImageViewer::showCombinedImage(Image *img){
   std::cout << "Showing combined image" << std::endl;
+  Image *copy = new Image(*(img));
+
+
+  std::cout << std::endl << std::endl;
+  std::cout << "--------Report--------" << std::endl;
+  img->createFISHreport(1);
   showImageLeft(img);
-  showImageRight(img);
+  copy->createFISHreport(2);
+  showImageRight(copy);
   
   update();
   delete(img);
