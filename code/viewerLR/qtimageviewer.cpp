@@ -104,7 +104,7 @@ void QtImageViewer::showImage(Image *img){
   Image *copy = new Image(*(img));
 
   // Transform copy.
-  copy->createFISHreport(0);
+  copy->circuitBoardQA("wires");
 
   // Show transformed copy on the right.
   showImageRight(copy); 

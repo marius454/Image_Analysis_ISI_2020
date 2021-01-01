@@ -53,12 +53,13 @@ public:
    float* desiredValueFractionsAtPoints, uint8 algorithm = 0);
   void histogramNormalization();
 
-  // Spacial filtering
+  // Spatial filtering
   void imageBlurring(uint32 filterWidth);
   void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
   void sharpeningLaplacian(bool useN8 = false, bool getOnlyLaplacian = false);
   void sobelOperator();
   void Fig3_43(char imgLetter);
+  void fullMedianFilter(uint16 filterWidth);
 
   // Fourier transform
   void padImage(float xMultiplier, float yMultiplier);
@@ -71,7 +72,7 @@ public:
   void frequencyFilter(uint16 type, uint16 pass, uint16 visualise, double radius, uint16 n, float W = 10, uint32** notchPoints = nullptr, uint16 nrOfNotches = 0);
   void getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
-  // Image Segmentation/Mathematical Morphology
+  // Image Mathematical Morphology/Segmentation
   void createFISHreport(uint16 visualizedStep);
   void threshold(uint8 changePoint, unsigned char *data);
   void calculatedThreshold(uint8 changePoint, unsigned char *data);
@@ -83,9 +84,16 @@ public:
   uint16 findCells();
   void assignCells(uint16 cellNr);
 
+  void circuitBoardQA(std::string evaluation);
+  void evaluateWires(uint16 wireIntensity);
+  void evaluateSolderingIslands();
+  void evaluateSolderingHoles(uint16 holeIntensity);
+
   // Image related
 	unsigned char* getImageData() const;
   void splitChannels(char showChannel);
+  void initializeRGB();
+  void combineRGB();
 
 	// Get attributes
 	unsigned long getWidth() const;
@@ -103,6 +111,8 @@ private:
 	unsigned long _depth{0};
 	unsigned long _channels{0};
 	unsigned long _bpp{0};
+  uint32 _imgSize{0};
+  uint16 _L{0};
   float* _lookupTable = new float[256];
   std::vector<unsigned int> _histogram = std::vector<unsigned int>(256,0);
 
@@ -135,6 +145,9 @@ private:
   void calculateHistogram();
   void transformPixels();
 
+  // Spacial filtering related
+  void localMedianFilter(uint32 x, uint32 y, uint16 filterWidth);
+
   // Fourier transform related
   void shiftForPeriodicity(bool visualise);
   void DFT();
@@ -153,8 +166,9 @@ private:
   float buildButterworthNotchFilterPixel(uint16 pass, int x, int y, float D0, uint16 n, uint32** notchPoints, uint16 nrOfNotches);
   float buildGaussianNotchFilterPixel(uint16 pass, int x, int y, float D0, uint32** notchPoints, uint16 nrOfNotches);
 
-  // Segmentation related
-  void getNeighbours(uint32 x, uint32 y, uint8 intensity, bool *visitedPixels);
+  // Segmentation/Morphology related
+  void getNeighbours(uint32 x, uint32 y, uint16 intensity, bool *visitedPixels);
+  bool checkForConnection(uint16 neighbourgoodIntensity, uint16 backgroundIntensity);
 };
 
 class Interval{

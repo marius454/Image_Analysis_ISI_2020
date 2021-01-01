@@ -4,18 +4,26 @@ Image::Image(){};
 
 Image::Image(std::string filename){
   openFile(filename, 0);
+  _imgSize = _width * _height * _channels;
+  _L = pow(2, _bpp);
   calculateHistogram();
 }
 Image::Image(std::string filename, short directory){
   openFile(filename, directory);
+  _imgSize = _width * _height * _channels;
+  _L = pow(2, _bpp);
   calculateHistogram();
 }
 Image::Image(std::string filename1, std::string filename2, std::string filename3){
   combineFiles(filename1, filename2, filename3);
+  _imgSize = _width * _height * _channels;
+  _L = pow(2, _bpp);
   calculateHistogram();
 }
 Image::Image(const Image &original){
   performCopy(original);
+  _imgSize = _width * _height * _channels;
+  _L = pow(2, _bpp);
   calculateHistogram();
 }
 Image::Image(uint32 width, uint32 height){
@@ -88,6 +96,32 @@ void Image::splitChannels(char showChannel){
     else if (showChannel == 'G') for (uint32 i = 0; i < imgSize; i++) _data[i] = _Gdata[i];
     else if (showChannel == 'B') for (uint32 i = 0; i < imgSize; i++) _data[i] = _Bdata[i];
     else for (uint32 i = 0; i < imgSize; i++) _data[i] = (_Rdata[i] + _Gdata[i] + _Bdata[i]) / 3;
+  }
+}
+void Image::initializeRGB(){
+  if (_channels == 1){
+    _Rdata = new unsigned char[_imgSize];
+    _Gdata = new unsigned char[_imgSize];
+    _Bdata = new unsigned char[_imgSize];
+    for (uint32 i = 0; i < _imgSize; i += _channels){
+      _Rdata[i] = _data[i];
+      _Gdata[i] = _data[i];
+      _Bdata[i] = _data[i];
+    }
+  }
+}
+void Image::combineRGB(){
+  if (_channels == 1){
+    delete (_data);
+    _channels = 3;
+    _imgSize = _imgSize * _channels;
+    _data = new unsigned char[_imgSize];
+
+    for (uint32 i = 0; i < _imgSize; i += _channels){
+      _data[i] = _Rdata[i / _channels];
+      _data[i+1] = _Gdata[i / _channels];
+      _data[i+2] = _Bdata[i / _channels];
+    }
   }
 }
 

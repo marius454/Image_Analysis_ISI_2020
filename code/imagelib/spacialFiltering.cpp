@@ -47,6 +47,33 @@ void Image::imageBlurring(uint32 filterWidth){
   calculateHistogram();
 }
 
+void Image::fullMedianFilter(uint16 filterWidth){
+  for (int y = 0; y < _height; y++)
+    for (int x = 0; x < _width; x++){
+      localMedianFilter(x, y, filterWidth);
+    }
+}
+
+void Image::localMedianFilter(uint32 x, uint32 y, uint16 filterWidth){
+  uint16 filterSize = filterWidth * filterWidth;
+  int a = (filterWidth - 1) / 2;
+
+  uint16 *filter = new uint16[filterSize];
+  for (int t = -a; t <= a; t++)
+    for (int s = -a; s <= a; s++){
+      int fx = x-s;
+      int fy = y-t;
+      if (fx >= 0 && fy >= 0 && fx < _width && fy < _height){
+        filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
+      }
+      else {
+        filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
+      }
+    }
+  std::sort(filter, filter + filterSize);
+  _data [y*_width +x] = static_cast<unsigned char>(filter[filterSize / 2]);
+}
+
 void Image::sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k){
   uint16 L = pow(2, _bpp);
   uint32 imgSize = _height * _width * _channels;

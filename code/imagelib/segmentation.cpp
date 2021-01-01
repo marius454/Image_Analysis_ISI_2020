@@ -164,10 +164,11 @@ void Image::findNeighbourhood(uint32 x, uint32 y, uint8 startIntensity, uint8 en
   for (uint32 i = 0; i < imgSize; i++){
     if (visitedPixels[i] == true) _data[i] = static_cast<unsigned char>(endIntensity);
   }
+  delete(visitedPixels);
   calculateHistogram();
 }
 
-void Image::getNeighbours(uint32 x, uint32 y, uint8 intensity, bool *visitedPixels){
+void Image::getNeighbours(uint32 x, uint32 y, uint16 intensity, bool *visitedPixels){
   visitedPixels[y*_width + x] = true;
   for (int t = -1; t <= 1; t++)
     for (int s = -1; s <= 1; s++){
@@ -261,5 +262,7 @@ void Image::assignCells(uint16 cellNr){
   }
   std::cout << std::endl;
   std::cout << "Total: " << sumMutations << std::endl << std::endl;
+
+  delete(nrMutations);
   calculateHistogram();
 }

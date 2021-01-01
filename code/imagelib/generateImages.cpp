@@ -14,6 +14,8 @@ void Image::generateImage(std::string imageType, float alphaXMultiplier, float a
 void Image::generateLineImage(float alphaXMultiplier, float alphaYMultiplier){
   _channels = 1;
   _bpp = 8;
+  _imgSize = _width * _height * _channels;
+  _L = pow(2, _bpp);
   _data = new unsigned char[_width * _height * _channels];
 
   uint16 L = pow(2, _bpp);
