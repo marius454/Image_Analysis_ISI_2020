@@ -11,11 +11,11 @@ void Image::circuitBoardQA(std::string evaluation){
       }
     }
 
-  calculateHistogram();
-  for (uint32 i = 0; i < 256; i++){
-    if (_histogram[i] != 0) std::cout << "(" << i << ", " << _histogram[i] << ") ";
-  }
-  std::cout << std::endl;
+  // calculateHistogram();
+  // for (uint32 i = 0; i < 256; i++){
+  //   if (_histogram[i] != 0) std::cout << "(" << i << ", " << _histogram[i] << ") ";
+  // }
+  // std::cout << std::endl;
   
   if (evaluation == "wires"){
     evaluateWires(iCONNECTORS);
@@ -34,15 +34,25 @@ void Image::circuitBoardQA(std::string evaluation){
   calculateHistogram();
 }
 
+void Image::evaluateSolderingIslands(){
+
+  //go to one side until you find a background intensity, then go to another side
+  for (uint32 y = 0; y < _height; y++)
+    for (uint32 x = 0; x < _width; x++){
+      if ((int)_data[y*_width + x] == iCONNECTORS){
+        uint16 step = 0;
+      }
+    }
+}
+void Image::evaluateSolderingHoles(uint16 holeIntensity){
+
+}
 void Image::evaluateWires(uint16 wireIntensity){
   initializeRGB();
-  uint32 check = 0;
   for (uint32 y = 0; y < _height; y++)
     for (uint32 x = 0; x < _width; x++){
       uint32 xy = y*_width + x;
       if (_data[xy] == wireIntensity && _Bdata[xy] != 0){
-        check ++;
-        std::cout << check << std::endl;
         findNeighbourhood(x, y, wireIntensity, wireIntensity + 1);
         if (checkForConnection(wireIntensity + 1, iBACKGROUND) == true){
           for (uint32 i = 0; i < _imgSize; i++){
@@ -65,22 +75,9 @@ void Image::evaluateWires(uint16 wireIntensity){
         findNeighbourhood(x, y, wireIntensity + 1, wireIntensity);
       }
     }
-
-
-  calculateHistogram();
-  for (uint32 i = 0; i < 256; i++){
-    if (_histogram[i] != 0) std::cout << "(" << i << ", " << _histogram[i] << ") ";
-  }
-  std::cout << std::endl;
   
   combineRGB();
   calculateHistogram();
-}
-void Image::evaluateSolderingIslands(){
-
-}
-void Image::evaluateSolderingHoles(uint16 holeIntensity){
-
 }
 
 // checks if the object that is of given intensity has two neighbours that are not the bachground (touching the edge of the image also counts as a neighbour)
@@ -103,7 +100,6 @@ bool Image::checkForConnection(uint16 neighbourgoodIntensity, uint16 backgroundI
             if (fx >= 0 && fy >= 0 && fx < _width && fy < _height){
               if ((int)_data[fy*_width + fx] != backgroundIntensity && (int)_data[fy*_width + fx] != neighbourgoodIntensity
                && (int)_data[fy*_width + fx] != revertIntensity){
-                std::cout << (int)_data[fy*_width + fx] << " " << revertIntensity << std::endl;
                 if (nrDetected == 1){
                   if (revertIntensity != -1) findNeighbourhood (revertX, revertY, revertIntensity, revertIntensity - 1);
                   return true;
@@ -121,10 +117,8 @@ bool Image::checkForConnection(uint16 neighbourgoodIntensity, uint16 backgroundI
               if (!edgeDetected){
                 nrDetected++;
                 edgeDetected = true;
-                std::cout << -1 << std::endl;
               }
               if (nrDetected == 2){
-                std::cout << -1 << std::endl;
                 if (revertIntensity != -1) findNeighbourhood (revertX, revertY, revertIntensity, revertIntensity - 1);
                 return true;
               }

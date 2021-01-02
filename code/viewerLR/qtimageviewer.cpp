@@ -98,13 +98,15 @@ void QtImageViewer::showFile(const QString filename){
 
 void QtImageViewer::showImage(Image *img){
   std::cout<<"Transform and show Image! "<<std::endl;
-  showImageLeft(img);
-
   // Create a copy of the image.
   Image *copy = new Image(*(img));
 
+  img->getCutOut(0, 67, 497, 90);
+  showImageLeft(img);
+
   // Transform copy.
-  copy->circuitBoardQA("wires");
+  // copy->circuitBoardQA("wires");
+  copy->bottles();
 
   // Show transformed copy on the right.
   showImageRight(copy); 

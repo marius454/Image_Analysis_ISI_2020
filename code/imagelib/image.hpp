@@ -89,6 +89,9 @@ public:
   void evaluateSolderingIslands();
   void evaluateSolderingHoles(uint16 holeIntensity);
 
+  void bottles();
+  void checkbottles(uint16 nrChecks);
+
   // Image related
 	unsigned char* getImageData() const;
   void splitChannels(char showChannel);
