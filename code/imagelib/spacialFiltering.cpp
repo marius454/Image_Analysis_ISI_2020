@@ -55,23 +55,27 @@ void Image::fullMedianFilter(uint16 filterWidth){
 }
 
 void Image::localMedianFilter(uint32 x, uint32 y, uint16 filterWidth){
-  uint16 filterSize = filterWidth * filterWidth;
+  //uint16 filterSize = filterWidth * filterWidth;
   int a = (filterWidth - 1) / 2;
 
-  uint16 *filter = new uint16[filterSize];
+  //uint16 *filter = new uint16[filterSize];
+  std::vector<uint16> filter;
   for (int t = -a; t <= a; t++)
     for (int s = -a; s <= a; s++){
       int fx = x-s;
       int fy = y-t;
       if (fx >= 0 && fy >= 0 && fx < _width && fy < _height){
-        filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
+        //filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
+        filter.push_back((int)_data[ fy*_width + fx ]);
       }
-      else {
-        filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
-      }
+      // else {
+      //   filter[ (t+a)*filterWidth + (s+a) ] = (int)_data[ fy*_width + fx ];
+      // }
     }
-  std::sort(filter, filter + filterSize);
-  _data [y*_width +x] = static_cast<unsigned char>(filter[filterSize / 2]);
+  //std::sort(filter, filter + filterSize);
+  //_data [y*_width +x] = static_cast<unsigned char>(filter[filterSize / 2]);
+  std::sort(filter.begin(), filter.end());
+  _data [y*_width +x] = static_cast<unsigned char>(filter[filter.size() / 2]);
 }
 
 void Image::sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k){

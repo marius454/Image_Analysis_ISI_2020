@@ -101,12 +101,13 @@ void QtImageViewer::showImage(Image *img){
   // Create a copy of the image.
   Image *copy = new Image(*(img));
 
-  img->getCutOut(0, 67, 497, 90);
+  //img->getCutOut(0, 67, 497, 90);
   showImageLeft(img);
 
   // Transform copy.
   // copy->circuitBoardQA("wires");
-  copy->bottles();
+  copy->circuitBoardQA("islands");
+  // copy->bottles();
 
   // Show transformed copy on the right.
   showImageRight(copy); 

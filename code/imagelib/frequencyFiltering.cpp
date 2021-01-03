@@ -210,6 +210,7 @@ void Image::getCutOut(uint32 startX, uint32 startY, uint32 endX, uint32 endY){
   _data = tempData;
   _width = tempWidth;
   _height = tempHeight;
+  _imgSize = _width * _height * _channels;
   calculateHistogram();
 }
 

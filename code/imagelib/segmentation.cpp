@@ -266,3 +266,17 @@ void Image::assignCells(uint16 cellNr){
   delete(nrMutations);
   calculateHistogram();
 }
+
+
+void Image::fillRGBByIntensity(uint16 dataIntensity, uint16 R, uint16 G, uint16 B){
+  for (uint32 i = 0; i < _imgSize; i++){
+    if (_data[i] == dataIntensity){
+      fillRGB(i, R, G, B);
+    }
+  }
+}
+void Image::fillRGB(uint32 pixelIndex, uint16 R, uint16 G, uint16 B){
+  _Rdata[pixelIndex] = R;
+  _Gdata[pixelIndex] = G;
+  _Bdata[pixelIndex] = B;
+}

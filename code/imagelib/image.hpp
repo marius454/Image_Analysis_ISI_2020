@@ -171,7 +171,12 @@ private:
 
   // Segmentation/Morphology related
   void getNeighbours(uint32 x, uint32 y, uint16 intensity, bool *visitedPixels);
-  bool checkForConnection(uint16 neighbourgoodIntensity, uint16 backgroundIntensity);
+  bool checkForConnection(uint16 neighbourhoodIntensity, uint16 backgroundIntensity);
+  void removeWires();
+  void evaluateIsland(uint16 islandIntensity, uint16 checkedIslandIntensity);
+  void fillRGBByIntensity(uint16 dataIntensity, uint16 R, uint16 G, uint16 B);
+  void fillRGB(uint32 pixelIndex, uint16 R, uint16 G, uint16 B);
+
 };
 
 class Interval{
