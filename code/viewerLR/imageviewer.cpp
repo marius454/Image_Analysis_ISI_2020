@@ -33,27 +33,37 @@ int main(int argc, char** argv){
       myImage->generateImage(std::string(argv[2]), atof(argv[5]), atof(argv[6]));
       uiActions(argc, argv, myImage, imv);
     }
-    else if (func == "combine"){
-      if (argc == 5){
-        std::cout << "Combining: " << argv[2] << " " << argv[3] << " " << argv[4] << std::endl;
+    else if (func == "FISH"){
+      if (argc == 5 || argc == 6){
+        std::cout << "Loading: " << std::endl << argv[2] << std::endl << argv[3] << std::endl << argv[4] << std::endl;
         Image* myImage = new Image(argv[2], argv[3], argv[4]);
-        imv->showCombinedImage(myImage);
-      }
-      else if (argc == 6){
-        std::cout << "Combining: " << argv[2] << " " << argv[3] << " " << argv[4] << std::endl;
-        Image* imageLeft = new Image(argv[2], argv[3], argv[4]);
-        int nrImageRight = atoi(argv[5]);
-        if (nrImageRight >= 1 && nrImageRight <= 3){
-          QString filename(argv[nrImageRight + 1]);
-          Image* imageRight = new Image(filename.toStdString());;
-          imv->showCombinedImage(imageLeft, imageRight);
+        if (argc == 5){
+          imv->showCombinedImage(myImage, 10);
         }
-        else {
-          std::cout << "The number of the image to show on the right must be between 1 and 3" << std::endl;
-          std::exit(0);
+        else{
+          imv->showCombinedImage(myImage, atoi(argv[5]));
         }
       }
       else invalidUiCall(func);
+    }
+    else if (func == "combine"){
+      int nrImageRight;
+      
+      if (argc == 5) nrImageRight = 1;
+      else if (argc == 6) nrImageRight = atoi(argv[5]);
+      else invalidUiCall(func);
+
+      std::cout << "Combining: " << std::endl << argv[2] << std::endl << argv[3] << std::endl << argv[4] << std::endl;
+      Image* imageLeft = new Image(argv[2], argv[3], argv[4]);
+      if (nrImageRight >= 1 && nrImageRight <= 3){
+        QString filename(argv[nrImageRight + 1]);
+        Image* imageRight = new Image(filename.toStdString());;
+        imv->showCombinedImage(imageLeft, imageRight);
+      }
+      else {
+        std::cout << "The number of the image to show on the right must be between 1 and 3" << std::endl;
+        std::exit(0);
+      }
     }
     else if (argc == 2){
       QString filename(argv[1]);

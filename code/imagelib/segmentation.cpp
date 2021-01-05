@@ -2,53 +2,104 @@
 #define BACKGROUND 100
 #define BOUNDDIFF 5
 
-void Image::createFISHreport(uint16 visualizedStep){
-  uint32 imgSize = _width * _height * _channels;
-  uint16 L = pow(2, _bpp);
 
+void Image::createFISHreport(uint16 visualizedStep){
   splitChannels('B');
   threshold(20, _data);
+  if (visualizedStep == 1) return;
   squareErosion(5);
+  if (visualizedStep == 2) return;
   squareDilation(5);
+  if (visualizedStep == 3) return;
   findNeighbourhood(0, 0, 0, BACKGROUND);
-  //findNeighbourhood(200, 0, 0, BACKGROUND);
+  if (visualizedStep == 4) return;
   fillHoles();
+  if (visualizedStep == 5) return;
   getBoudaries();
-
+  if (visualizedStep == 6) return;
   uint16 cellNr = findCells();
-  std::cout << "Number of Cells: " << cellNr << std::endl;
+  if (visualizedStep == 7) return;
 
-  if (visualizedStep == 0){
-    _data = _Gdata;
+  unsigned char *tempData{nullptr};
+  uint16* acridineMutations{nullptr};
+  uint16* fitcMutations{nullptr};
+  if (visualizedStep == 10){
+    tempData = new unsigned char[_imgSize];
+    for (uint32 i = 0; i < _imgSize; i++){
+      tempData[i] = _data[i];
+    }
+    acridineMutations = new uint16[cellNr];
+    fitcMutations = new uint16[cellNr];
   }
-  else if (visualizedStep == 1){
-    threshold(120, _Rdata);
-    for (uint32 i = 0; i < imgSize; i++) {
-      if ((int)_data[i] + (int)_Rdata[i] > L-1){
-        _data[i] = static_cast<unsigned char>(L-1);
+
+  if (visualizedStep == 8 || visualizedStep == 10){
+    threshold(140, _Rdata);
+    for (uint32 i = 0; i < _imgSize; i++) {
+      if ((int)_data[i] + (int)_Rdata[i] > _L-1){
+        _data[i] = static_cast<unsigned char>(_L-1);
       }
       else{
         _data[i] = _data[i] + _Rdata[i];
       }
     }
-    std::cout << "Number of Acredine mutations in cells:" << std::endl;
-    assignCells(cellNr);
+    if (visualizedStep == 8){
+      assignCells(cellNr);
+      return;
+    }
+    else assignCells(cellNr, acridineMutations);
   }
-  else if (visualizedStep == 2){
+
+  if (visualizedStep == 9 || visualizedStep == 10){
+    if (visualizedStep == 10){
+      delete(_data);
+      _data = tempData;
+    }
     calculatedThreshold(50, _Gdata);
-    for (uint32 i = 0; i < imgSize; i++) {
-      if ((int)_data[i] + (int)_Gdata[i] > L-1){
-        _data[i] = static_cast<unsigned char>(L-1);
+    for (uint32 i = 0; i < _imgSize; i++) {
+      if ((int)_data[i] + (int)_Gdata[i] > _L-1){
+        _data[i] = static_cast<unsigned char>(_L-1);
       }
       else{
         _data[i] = _data[i] + _Gdata[i];
       }
     }
-    std::cout << "Number of FITC mutations in cells:" << std::endl;
-    assignCells(cellNr);
+    if (visualizedStep == 9){
+      assignCells(cellNr);
+      return;
+    }
+    else assignCells(cellNr, fitcMutations);
+  }
+  if (visualizedStep == 10){
+    std::cout << std::endl << std::endl;
+    std::cout << "--------Report--------" << std::endl;
+    std::cout << "Number of Cells: " << cellNr << std::endl << std::endl;
+    for (uint16 i = 0; i < cellNr; i++){
+      std::cout << "Cell " << i + 1 << ": "; // << std::endl;
+      std::cout << "number of Acridine mutations: " << acridineMutations[i]; //<< std::endl;
+      std::cout << "number of FITC mutations: " << fitcMutations[i]; // << std::endl;
+      float allMutations = acridineMutations[i] + fitcMutations[i];
+      if (acridineMutations[i] == 0 || fitcMutations[i] == 0){
+        std::cout << "At least one of the mutations is not in this cell so I can't calculate a ratio or it is 0" << std::endl;
+      }
+      else{
+        std::cout << "ratio: " << acridineMutations[i] << "/" << fitcMutations[i] << "(" << (float)acridineMutations[i]/(float)fitcMutations[i]
+         << ") , which means " << ((float)acridineMutations[i]/allMutations) * 100 << "% of the mutations are Acridine, and "
+          << ((float)fitcMutations[i]/allMutations) * 100 << "% are FITC" << std::endl;
+      }
+      //std::cout << std::endl;
+    }
+    uint16 sumMutationsAcr = 0;
+    uint16 sumMutationsFitc = 0;
+    for (uint16 i = 0; i < cellNr; i++){
+      sumMutationsAcr += acridineMutations[i];
+      sumMutationsFitc += fitcMutations[i];
+    }
+    std::cout << "Total number of Acridine mutations: " << sumMutationsAcr << std::endl;
+    std::cout << "Total number of FITC mutations: " << sumMutationsFitc << std::endl;
+    return;
   }
   
-  calculateHistogram();
+  //calculateHistogram();
 }
 
 void Image::calculatedThreshold(uint8 changePoint, unsigned char *data){
@@ -224,12 +275,14 @@ void Image::getBoudaries(){
 }
 
 
-void Image::assignCells(uint16 cellNr){
+void Image::assignCells(uint16 cellNr, uint16 *mutations){
   uint32 imgSize = _width * _height * _channels;
   uint16 L = pow(2, _bpp);
-  uint16 *nrMutations = new uint16[cellNr];
-  for (uint16 i = 0; i < cellNr; i++){
-    nrMutations[i] = 0;
+  //uint16 *nrMutations = new uint16[cellNr];
+  if (mutations != nullptr){
+    for (uint16 i = 0; i < cellNr; i++){
+      mutations[i] = 0;
+    }
   }
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
@@ -240,8 +293,7 @@ void Image::assignCells(uint16 cellNr){
           if (fx >= 0 && fy >= 0 && fx < _width && fy < _height){
             if (_data[y*_width + x] == L-1 && _data[fy*_width + fx] != 0 && _data[fy*_width + fx] != L-1){
               findNeighbourhood(x, y, L-1, (int)_data[fy*_width + fx] + 1);
-              nrMutations[(((L-1) - (int)_data[fy*_width + fx]) / BOUNDDIFF) - 1] += 1;
-              std::cout << (((L-1) - (int)_data[fy*_width + fx]) / BOUNDDIFF) - 1 << std::endl;
+              if (mutations != nullptr) mutations[(((L-1) - (int)_data[fy*_width + fx]) / BOUNDDIFF) - 1] += 1;
             }
           }
         }
@@ -251,19 +303,11 @@ void Image::assignCells(uint16 cellNr){
           step++;
         }
         findNeighbourhood(x, y, L-1, (int)_data[(y-step)*_width + x] + 1);
-        nrMutations[(((L-1) - (int)_data[(y-step)*_width + x]) / BOUNDDIFF) - 1] += 1;
-        std::cout << (((L-1) - (int)_data[(y-step)*_width + x]) / BOUNDDIFF) - 1 << std::endl;
+        if (mutations != nullptr){
+          mutations[(((L-1) - (int)_data[(y-step)*_width + x]) / BOUNDDIFF) - 1] += 1;
+        } 
       }
   }
-  uint16 sumMutations = 0;
-  for (uint16 i = 0; i < cellNr; i++){
-    std::cout << "Cell " << i + 1 << ": " << nrMutations[i] << ";" << std::endl;
-    sumMutations += nrMutations[i];
-  }
-  std::cout << std::endl;
-  std::cout << "Total: " << sumMutations << std::endl << std::endl;
-
-  delete(nrMutations);
   calculateHistogram();
 }
 

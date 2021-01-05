@@ -82,7 +82,7 @@ public:
   void fillHoles();
   void getBoudaries();
   uint16 findCells();
-  void assignCells(uint16 cellNr);
+  void assignCells(uint16 cellNr, uint16 *mutations = nullptr);
 
   void circuitBoardQA(std::string evaluation);
   void evaluateWires(uint16 wireIntensity);

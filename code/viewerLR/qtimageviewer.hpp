@@ -29,7 +29,7 @@ public slots:
   void showImage(Image *img, std::string transformationType, std::string* values, int nrOfValues = 0);
   void showImageLeft(const Image *img);
   void showImageRight(const Image *img);
-  void showCombinedImage(Image *img);
+  void showCombinedImage(Image *img, uint16 visualizedStep);
   void showCombinedImage(Image *imageLeft, Image *imageRight);
   void openFile();
   void quit();

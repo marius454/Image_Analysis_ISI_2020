@@ -114,17 +114,21 @@ void QtImageViewer::showImage(Image *img){
   delete(copy);
 }
 
-void QtImageViewer::showCombinedImage(Image *img){
-  std::cout << "Showing combined image" << std::endl;
+void QtImageViewer::showCombinedImage(Image *img, uint16 visualizedStep){
+  std::cout << "Showing combined image, " << "step - " << visualizedStep << std::endl;
   Image *copy = new Image(*(img));
 
-
-  std::cout << std::endl << std::endl;
-  std::cout << "--------Report--------" << std::endl;
-  img->createFISHreport(1);
-  showImageLeft(img);
-  copy->createFISHreport(2);
-  showImageRight(copy);
+  if (visualizedStep == 10){
+    img->createFISHreport(8);
+    showImageLeft(img);
+    copy->createFISHreport(10);
+    showImageRight(copy);  
+  }
+  else {
+    showImageLeft(img);
+    copy->createFISHreport(visualizedStep);
+    showImageRight(copy);
+  }
   
   update();
   delete(img);
