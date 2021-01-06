@@ -106,7 +106,7 @@ void QtImageViewer::showImage(Image *img){
 
   // Transform copy.
   // copy->circuitBoardQA("wires");
-  copy->circuitBoardQA("islands");
+  copy->circuitBoardQA("holes");
   // copy->bottles();
 
   // Show transformed copy on the right.
