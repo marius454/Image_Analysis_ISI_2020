@@ -74,9 +74,9 @@ void Image::createFISHreport(uint16 visualizedStep){
     std::cout << "--------Report--------" << std::endl;
     std::cout << "Number of Cells: " << cellNr << std::endl << std::endl;
     for (uint16 i = 0; i < cellNr; i++){
-      std::cout << "Cell " << i + 1 << ": "; // << std::endl;
-      std::cout << "number of Acridine mutations: " << acridineMutations[i]; //<< std::endl;
-      std::cout << "number of FITC mutations: " << fitcMutations[i]; // << std::endl;
+      std::cout << "Cell " << i + 1 << ": " << std::endl;
+      std::cout << "number of Acridine mutations: " << acridineMutations[i] << std::endl;
+      std::cout << "number of FITC mutations: " << fitcMutations[i] << std::endl;
       float allMutations = acridineMutations[i] + fitcMutations[i];
       if (acridineMutations[i] == 0 || fitcMutations[i] == 0){
         std::cout << "At least one of the mutations is not in this cell so I can't calculate a ratio or it is 0" << std::endl;
@@ -86,7 +86,7 @@ void Image::createFISHreport(uint16 visualizedStep){
          << ") , which means " << ((float)acridineMutations[i]/allMutations) * 100 << "% of the mutations are Acridine, and "
           << ((float)fitcMutations[i]/allMutations) * 100 << "% are FITC" << std::endl;
       }
-      //std::cout << std::endl;
+      std::cout << std::endl;
     }
     uint16 sumMutationsAcr = 0;
     uint16 sumMutationsFitc = 0;

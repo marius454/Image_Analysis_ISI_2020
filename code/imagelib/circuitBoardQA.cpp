@@ -3,14 +3,13 @@
 #define iSOLDERHOLE 240
 #define iBACKGROUND 128
 
-void Image::circuitBoardQA(std::string evaluation){
+void Image::circuitBoardQA(std::string evaluation, float value){
   for (uint32 y = 0; y < _height; y++)
     for (uint32 x = 0; x < _width; x++){
       if ((int)_data[y*_width + x] == 0 || (int)_data[y*_width + x] == _L-1){
         localMedianFilter(x, y, 3);
       }
     }
-
   calculateHistogram();
   for (uint32 i = 0; i < 256; i++){
     if (_histogram[i] != 0) std::cout << "(" << i << ", " << _histogram[i] << ") ";
@@ -18,13 +17,13 @@ void Image::circuitBoardQA(std::string evaluation){
   std::cout << std::endl;
   
   if (evaluation == "wires"){
-    evaluateWires(iCONNECTORS);
+    evaluateWires();
   }
   else if (evaluation == "islands"){
-    evaluateSolderingIslands();
+    evaluateSolderingIslands(value);
   }
   else if (evaluation == "holes"){
-    evaluateSolderingHoles(iSOLDERHOLE);
+    evaluateSolderingHoles(value);
   }
   else {
     std::cout << "Command \"" << evaluation << "\" not found for circuit board QA analysis";
@@ -34,13 +33,13 @@ void Image::circuitBoardQA(std::string evaluation){
   calculateHistogram();
 }
 
-void Image::evaluateSolderingIslands(){
+void Image::evaluateSolderingIslands(float percentageCloseness){
   //find 3, 4 or 5 pixel thick lines to find and change the intensity of wires, so that I can find othe object that have the same intensity as wires
   initializeRGB();
   // pad Image to prevent out of bounds
   padImage(1.02, 1.02);
   removeWires(5);
-  removeWires(2);
+  // removeWires(2);
 
   for (int y = 0; y < _height; y++)
     for (int x = 0; x < _width; x++){
@@ -53,7 +52,7 @@ void Image::evaluateSolderingIslands(){
               if(_data[fy*_width + fx] == iSOLDERHOLE){
                 findNeighbourhood(x, y, iCONNECTORS, iCONNECTORS + 1);
                 findNeighbourhood(fx, fy, iSOLDERHOLE, iCONNECTORS + 1);
-                evaluateIsland(iCONNECTORS + 1, iCONNECTORS + 2, 10.0);
+                evaluateIsland(iCONNECTORS + 1, iCONNECTORS + 2, percentageCloseness);
               }
             }
           }
@@ -144,16 +143,16 @@ void Image::evaluateIsland(uint16 islandIntensity, uint16 checkedIslandIntensity
   padImage(1.02, 1.02);
 }
 
-void Image::evaluateSolderingHoles(uint16 holeIntensity){
+void Image::evaluateSolderingHoles(float allowedMargin){
   initializeRGB();
   removeWires(5);
 
   for (int y = 1; y < _height; y++)
     for (int x = 1; x < _width; x++){
-      if ((int)_data[y*_width + x] == holeIntensity){
-        findNeighbourhood(x, y, holeIntensity, holeIntensity + 1);
-        evaluateHole(holeIntensity + 1, 1);
-        findNeighbourhood(x, y, holeIntensity + 1, holeIntensity + 2);
+      if ((int)_data[y*_width + x] == iSOLDERHOLE){
+        findNeighbourhood(x, y, iSOLDERHOLE, iSOLDERHOLE + 1);
+        evaluateHole(iSOLDERHOLE + 1, (int)allowedMargin);
+        findNeighbourhood(x, y, iSOLDERHOLE + 1, iSOLDERHOLE + 2);
       }
     }
 
@@ -212,20 +211,27 @@ void Image::evaluateHole(uint16 holeIntensity, uint16 allowedMargin){
   else fillRGBByIntensity(holeIntensity, _L-1, 0, 0);
 }
 
-void Image::evaluateWires(uint16 wireIntensity){
+void Image::evaluateWires(){
   initializeRGB();
+
+  for (uint32 i = 0; i < _imgSize; i++){
+    if ((int)_data[i] == 80){
+      _data[i] = static_cast<unsigned char>(96);
+    }
+  }
+
   for (uint32 y = 0; y < _height; y++)
     for (uint32 x = 0; x < _width; x++){
       uint32 xy = y*_width + x;
-      if (_data[xy] == wireIntensity && _Bdata[xy] != 0){
-        findNeighbourhood(x, y, wireIntensity, wireIntensity + 1);
-        if (checkForConnection(wireIntensity + 1, iBACKGROUND)){
-          fillRGBByIntensity(wireIntensity + 1, 0, _L-1, 0);
+      if (_data[xy] == iCONNECTORS && _Bdata[xy] != 0){
+        findNeighbourhood(x, y, iCONNECTORS, iCONNECTORS + 1);
+        if (checkForConnection(iCONNECTORS + 1, iBACKGROUND)){
+          fillRGBByIntensity(iCONNECTORS + 1, 0, _L-1, 0);
         }
         else {
-          fillRGBByIntensity(wireIntensity + 1, _L-1, 0, 0);
+          fillRGBByIntensity(iCONNECTORS + 1, _L-1, 0, 0);
         }
-        findNeighbourhood(x, y, wireIntensity + 1, wireIntensity);
+        findNeighbourhood(x, y, iCONNECTORS + 1, iCONNECTORS);
       }
     }
   
@@ -233,8 +239,8 @@ void Image::evaluateWires(uint16 wireIntensity){
   calculateHistogram();
 }
 
-// checks if the object that is of given intensity has two neighbours that are not the bachground (touching the edge of the image also counts as a neighbour)
-// meaning it finds if the neighbourhood has two seperate neighbours (they be of the same intensity so if one is found its intensity needs to be temporarily
+// checks if the object that is of given intensity has two neighbours that are not the background (touching the edge of the image also counts as a neighbour)
+// meaning it finds if the neighbourhood has two seperate neighbours (they might be of the same intensity so if one is found its intensity needs to be temporarily
 // changed so that it can be seperated for another neighbourhood).
 bool Image::checkForConnection(uint16 neighbourhoodIntensity, uint16 backgroundIntensity){
   uint8 nrDetected = 0;
@@ -283,35 +289,3 @@ bool Image::checkForConnection(uint16 neighbourhoodIntensity, uint16 backgroundI
   return false;
 }
 
-
-
-
-
-
-
-
-// for (uint32 y = 1; y < _height; y++)
-//     for (uint32 x = 1; x < _width; x++){
-//       if ((int)_data[y*_width + x] == iCONNECTORS){
-//         if (((int)_data[(y-1)*_width + x] == iBACKGROUND)
-//          && ((int)_data[(y+1)*_width + x] == iBACKGROUND || (int)_data[(y+2)*_width + x] == iBACKGROUND || (int)_data[(y+3)*_width + x] == iBACKGROUND
-//          || (int)_data[(y+4)*_width + x] == iBACKGROUND || (int)_data[(y+5)*_width + x] == iBACKGROUND)){
-//           uint16 step = 0;
-//           while ((int)_data[(y+step)*_width + x] == iCONNECTORS){
-//             _data[(y+step)*_width + x] = static_cast<unsigned char>(iBACKGROUND);
-//             step++;
-//           }
-//           if ()
-//         }
-        
-//         if (((int)_data[y*_width + (x-1)] == iBACKGROUND)
-//          && ((int)_data[y*_width + (x+1)] == iBACKGROUND || (int)_data[y*_width + (x+2)] == iBACKGROUND || (int)_data[y*_width + (x+3)] == iBACKGROUND
-//          || (int)_data[y*_width + (x+4)] == iBACKGROUND || (int)_data[y*_width + (x+5)] == iBACKGROUND)){
-//           uint16 step = 0;
-//           while ((int)_data[y*_width + (x+step)] != iBACKGROUND){
-//             _data[y*_width + (x+step)] = static_cast<unsigned char>(iBACKGROUND);
-//             step++;
-//           }
-//         }
-//       }
-//     }

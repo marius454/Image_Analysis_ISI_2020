@@ -84,10 +84,10 @@ public:
   uint16 findCells();
   void assignCells(uint16 cellNr, uint16 *mutations = nullptr);
 
-  void circuitBoardQA(std::string evaluation);
-  void evaluateWires(uint16 wireIntensity);
-  void evaluateSolderingIslands();
-  void evaluateSolderingHoles(uint16 holeIntensity);
+  void circuitBoardQA(std::string evaluation, float value);
+  void evaluateWires();
+  void evaluateSolderingIslands(float percentageCloseness);
+  void evaluateSolderingHoles(float allowedMargin);
 
   void bottles();
   void checkbottles(uint16 nrChecks);

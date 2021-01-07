@@ -106,7 +106,7 @@ void QtImageViewer::showImage(Image *img){
 
   // Transform copy.
   // copy->circuitBoardQA("wires");
-  copy->circuitBoardQA("holes");
+  copy->circuitBoardQA("holes", 1);
   // copy->bottles();
 
   // Show transformed copy on the right.
@@ -250,6 +250,16 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, std::s
     else if (nrOfValues == 2){
       showImageLeft(img);
       copy->fourierTransform(values[0], std::stof(values[1]));
+    }
+  }
+  else if (transformationType == "circuitBoard"){
+    if (nrOfValues == 1){
+      showImageLeft(img);
+      copy->circuitBoardQA(values[0], 10);
+    }
+    else if (nrOfValues == 2){
+      showImageLeft(img);
+      copy->circuitBoardQA(values[0], std::stof(values[1]));
     }
   }
   else {
