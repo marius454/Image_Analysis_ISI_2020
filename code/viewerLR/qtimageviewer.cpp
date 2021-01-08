@@ -220,6 +220,9 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, float*
   else if (transformationType == "cutout") {
     copy->getCutOut(values[0], values[1], values[2], values[3]);
   }
+  else if (transformationType == "bottles"){
+    copy->bottles((int)values[0]);
+  }
   else {
     std::cout << "Something went wrong while trying to show the image" << std::endl;
     std::exit(0);
@@ -255,7 +258,8 @@ void QtImageViewer::showImage(Image *img, std::string transformationType, std::s
   else if (transformationType == "circuitBoard"){
     if (nrOfValues == 1){
       showImageLeft(img);
-      copy->circuitBoardQA(values[0], 10);
+      if (values[0] == "islands") copy->circuitBoardQA(values[0], 10);
+      else copy->circuitBoardQA(values[0], 1);
     }
     else if (nrOfValues == 2){
       showImageLeft(img);

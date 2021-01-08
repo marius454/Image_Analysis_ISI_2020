@@ -89,7 +89,7 @@ public:
   void evaluateSolderingIslands(float percentageCloseness);
   void evaluateSolderingHoles(float allowedMargin);
 
-  void bottles();
+  void bottles(uint16 nrChecks);
   void checkbottles(uint16 nrChecks);
 
   // Image related

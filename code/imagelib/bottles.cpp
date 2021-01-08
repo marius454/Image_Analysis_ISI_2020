@@ -1,13 +1,13 @@
 #include "image.hpp"
 
-void Image::bottles(){
-  float x[] = {0.2, 0.8};
+void Image::bottles(uint16 nrChecks){
+  float x[] = {0.04, 0.8};
   float y[] = {0.5, 1};
-  getCutOut(0, 67, _width - 1, 90);
+  getCutOut(0, 64, _width - 1, 90);
   contrastStretching(2, x, y, 1);
-  fullMedianFilter(3);
+  fullMedianFilter(5);
   calculateHistogram();
-  checkbottles(10);
+  checkbottles(nrChecks);
 }
 
 // add differentiation of bottles
@@ -15,6 +15,9 @@ void Image::checkbottles(uint16 nrChecks){
   initializeRGB();
   uint32 startX, endX;
   uint16 bottleNr = 0;
+
+  std::cout << std::endl << std::endl;
+
   for (int x = 0; x < _width; x++) {
     uint16 prevPixel = _L-2;
     uint16 nextPixel = _L-2;
@@ -74,7 +77,7 @@ void Image::checkbottles(uint16 nrChecks){
       bottleNr++;
       std::cout << "Bottle Nr. " << bottleNr << " - ";
       if(goodChecks < (int)ceil((float)doneChecks*0.4)){
-        fillRGBByIntensity(_L-2, _L-1, 0, 0);
+        fillRGBByIntensity(_L-2, _L-50, 0, 0);
         std::cout << "BAD" << std::endl;
       } 
       else if (goodChecks < (int)ceil((float)doneChecks*0.7) + 1){
@@ -82,7 +85,7 @@ void Image::checkbottles(uint16 nrChecks){
         std::cout << "WARNING" << std::endl;
       }
       else{
-        fillRGBByIntensity(_L-2, 0, _L-1, 0);
+        fillRGBByIntensity(_L-2, 0, _L-50, 0);
         std::cout << "GOOD" << std::endl;
       }
       std::cout << "Number of checks done: " << doneChecks << std::endl

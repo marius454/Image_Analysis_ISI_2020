@@ -23,7 +23,7 @@ int main(int argc, char** argv){
       || func == "contrastthreshold" || func == "contrastslice" || func == "normalize"
       || func == "blur" || func == "unsharpmask" || func == "laplacian"
       || func == "sobel" || func == "fig3-43" || func == "fourier" || func == "frequencyfilter"
-      || func == "cutout" || func == "circuitBoard"){
+      || func == "cutout" || func == "circuitBoard" || func == "bottles"){
         QString filename(argv[argc-1]);
         Image* myImage = new Image(filename.toStdString());
         uiActions(argc, argv, myImage, imv);
@@ -95,6 +95,7 @@ std::map<std::string, int> getFuncMap(){
   funcMap["contrastslice"] = 3;
   funcMap["blur"] = 4;
   funcMap["unsharpmask"] = 4;
+  funcMap["bottles"] = 4;
   funcMap["laplacian"] = 5;
   funcMap["fig3-43"] = 6;
   funcMap["fourier"] = 7;

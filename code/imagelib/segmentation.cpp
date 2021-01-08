@@ -33,7 +33,7 @@ void Image::createFISHreport(uint16 visualizedStep){
   }
 
   if (visualizedStep == 8 || visualizedStep == 10){
-    threshold(140, _Rdata);
+    threshold(120, _Rdata);
     for (uint32 i = 0; i < _imgSize; i++) {
       if ((int)_data[i] + (int)_Rdata[i] > _L-1){
         _data[i] = static_cast<unsigned char>(_L-1);
@@ -98,8 +98,6 @@ void Image::createFISHreport(uint16 visualizedStep){
     std::cout << "Total number of FITC mutations: " << sumMutationsFitc << std::endl;
     return;
   }
-  
-  //calculateHistogram();
 }
 
 void Image::calculatedThreshold(uint8 changePoint, unsigned char *data){
